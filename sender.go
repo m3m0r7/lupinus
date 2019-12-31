@@ -14,11 +14,14 @@ func main() {
 			time.Sleep(5 * time.Second)
 			continue
 		}
+		counter := 1
 		for {
-			fmt.Println("Write a data")
+			fmt.Printf("Write a data %d\n", counter)
+
 			connection.Write(
-				[]byte("camera data has been sent"),
+				[]byte(fmt.Sprintf("camera data has been sent %d", counter)),
 			)
+			counter++
 			time.Sleep(5 * time.Second)
 		}
 	}
