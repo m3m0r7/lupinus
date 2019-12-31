@@ -1,0 +1,18 @@
+<!DOCType html>
+<html>
+<body>
+    <h1>Hello World!</h1>
+    <script>
+        const ws = new WebSocket("ws://localhost:30000");
+        ws.onopen = () => {
+            console.log('Connected.');
+        }
+        ws.onmessage = (data) => {
+            console.log(data);
+        }
+        ws.onclose = () => {
+            console.log('Closed');
+        }
+    </script>
+</body>
+</html>
