@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"reflect"
 	"sync"
 	"./websocket"
 )
@@ -25,12 +26,15 @@ func main() {
 			connection, _ := listener.Accept()
 			go func() {
 				// Handshake
-				wsClient, err := websocket.UpgradeToWebSocketClient(connection)
+				wsClient, err := websocket.Upgrade(connection)
 				if err != nil {
 					fmt.Printf("Disallowed to connect: %v\n", connection.RemoteAddr())
+
+					// Close connection
+					connection.Close()
 					return
 				}
-				clientChannel <- wsClient
+				clientChannel <- *wsClient
 			}()
 		}
 	}()
@@ -114,7 +118,7 @@ func main() {
 
 							tmpClients := []websocket.WebSocketClient{}
 							for _, tmpClient := range clients {
-								if tmpClient != client {
+								if !reflect.DeepEqual(tmpClient, client) {
 									tmpClients = append(tmpClients, tmpClient)
 								}
 							}
