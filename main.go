@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/joho/godotenv"
 	"net"
 	"os"
 	"reflect"
@@ -11,6 +12,11 @@ import (
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		fmt.Printf("Failed to load an env file: %v\n", err)
+		return
+	}
+
 	var wg sync.WaitGroup
 
 	clientChannel := make(chan websocket.WebSocketClient)
@@ -19,7 +25,7 @@ func main() {
 	go func() {
 		listener, _ := net.Listen(
 			"tcp",
-			"0.0.0.0:30000",
+			os.Getenv("CLIENT_SERVER"),
 		)
 		fmt.Printf("Start client accepting server %v\n", listener.Addr())
 		for {
@@ -43,7 +49,7 @@ func main() {
 		var mutex sync.Mutex
 		listener, _ := net.Listen(
 			"tcp",
-			"0.0.0.0:31000",
+			os.Getenv("CAMERA_SERVER"),
 		)
 
 		fmt.Printf("Start camera receiving server %v\n", listener.Addr())
