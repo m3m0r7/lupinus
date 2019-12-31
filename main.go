@@ -110,7 +110,7 @@ func main() {
 					for _, client := range clients {
 						if _, err := client.Client.Write(data); err != nil {
 							// Recreate new clients slice.
-							fmt.Printf("Failed to write%v\n", client.RemoteAddr())
+							fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
 
 							tmpClients := []websocket.WebSocketClient{}
 							for _, tmpClient := range clients {
