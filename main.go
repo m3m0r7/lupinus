@@ -6,12 +6,13 @@ import (
 	"net"
 	"os"
 	"sync"
+	"./websocket"
 )
 
 func main() {
 	var wg sync.WaitGroup
 
-	clientChannel := make(chan net.Conn)
+	clientChannel := make(chan websocket.WebSocketClient)
 
 	wg.Add(1)
 	go func() {
@@ -23,7 +24,13 @@ func main() {
 		for {
 			connection, _ := listener.Accept()
 			go func() {
-				clientChannel <- connection
+				// Handshake
+				wsClient, err := websocket.UpgradeToWebSocketClient(connection)
+				if err != nil {
+					fmt.Printf("Disallowed to connect: %v\n", connection.RemoteAddr())
+					return
+				}
+				clientChannel <- wsClient
 			}()
 		}
 	}()
@@ -40,7 +47,7 @@ func main() {
 		clients := []net.Conn{}
 		go func() {
 			for {
-				select {
+				select  {
 				case client := <-clientChannel:
 					fmt.Printf("Client connected %v\n", client.RemoteAddr())
 					mutex.Lock()
@@ -65,7 +72,7 @@ func main() {
 						fmt.Printf("err = %+v\n", err)
 
 						// Retry to listen from the camera server.
-						break
+						return
 					}
 
 					// Compare the received auth key and settled auth key.
@@ -73,7 +80,7 @@ func main() {
 						fmt.Printf("err = %+v\n", err)
 
 						// Retry to listen from the camera server.
-						break
+						return
 					}
 
 					// Receive frame size
@@ -83,7 +90,7 @@ func main() {
 						fmt.Printf("err = %+v\n", err)
 
 						// Retry to listen from the camera server.
-						break
+						return
 					}
 
 					realFrameSize := binary.BigEndian.Uint32(frameSize)
@@ -94,15 +101,13 @@ func main() {
 						fmt.Printf("err = %+v\n", err)
 
 						// Retry to listen from the camera server.
-						break
+						return
 					}
 
 					data := realFrame[:receivedImageDataSize]
 
-					fmt.Printf("Data received: %q\n", data)
 					mutex.Lock()
 					for _, client := range clients {
-						fmt.Printf("%v:%s\n", client.RemoteAddr(), data)
 						if _, err := client.Write(data); err != nil {
 							// Recreate new clients slice.
 							fmt.Printf("Failed to write%v\n", client.RemoteAddr())
