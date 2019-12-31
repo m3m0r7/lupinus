@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"net"
-	"os"
 	"sync"
 )
 
 func main() {
 	var wg sync.WaitGroup
+
+	// Allowed 100KB
+	imageMaxSize := 1024 * 100
 
 	clientChannel := make(chan net.Conn)
 
@@ -52,12 +54,14 @@ func main() {
 			connection, _ := listener.Accept()
 			go func() {
 				fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
-				read := make([]byte, 100)
+				read := make([]byte, imageMaxSize)
 				for {
 					n, err := connection.Read(read)
 					if err != nil {
 						fmt.Printf("err = %+v\n", err)
-						os.Exit(2)
+
+						// Retry to listen from the camera server.
+						break
 					}
 					data := read[:n]
 					fmt.Printf("Data received: %q\n", data)
