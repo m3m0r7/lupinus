@@ -1,16 +1,15 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net"
+	"os"
 	"sync"
 )
 
 func main() {
 	var wg sync.WaitGroup
-
-	// Allowed 100KB
-	imageMaxSize := 1024 * 100
 
 	clientChannel := make(chan net.Conn)
 
@@ -50,20 +49,56 @@ func main() {
 				}
 			}
 		}()
+
+		authKey := os.Getenv("AUTH_KEY")
+		authKeySize := len(authKey)
+
 		for {
 			connection, _ := listener.Accept()
+
 			go func() {
 				fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
-				read := make([]byte, imageMaxSize)
 				for {
-					n, err := connection.Read(read)
+					readAuthKey := make([]byte, authKeySize)
+					receivedAuthKeySize, err := connection.Read(readAuthKey)
 					if err != nil {
 						fmt.Printf("err = %+v\n", err)
 
 						// Retry to listen from the camera server.
 						break
 					}
-					data := read[:n]
+
+					// Compare the received auth key and settled auth key.
+					if string(readAuthKey[:receivedAuthKeySize]) != authKey {
+						fmt.Printf("err = %+v\n", err)
+
+						// Retry to listen from the camera server.
+						break
+					}
+
+					// Receive frame size
+					frameSize := make([]byte, 4)
+					_, errReceivingFrameSize := connection.Read(frameSize)
+					if errReceivingFrameSize != nil {
+						fmt.Printf("err = %+v\n", err)
+
+						// Retry to listen from the camera server.
+						break
+					}
+
+					realFrameSize := binary.BigEndian.Uint32(frameSize)
+					realFrame := make([]byte, realFrameSize)
+
+					receivedImageDataSize, errReceivingRealFrame := connection.Read(realFrame)
+					if errReceivingRealFrame != nil {
+						fmt.Printf("err = %+v\n", err)
+
+						// Retry to listen from the camera server.
+						break
+					}
+
+					data := realFrame[:receivedImageDataSize]
+
 					fmt.Printf("Data received: %q\n", data)
 					mutex.Lock()
 					for _, client := range clients {
