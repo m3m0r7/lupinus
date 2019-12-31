@@ -8,6 +8,7 @@ import (
 	"errors"
 	"net"
 	"strings"
+	"../util"
 )
 
 // WebSocket key ID.
@@ -43,12 +44,6 @@ func (client *WebSocketClient) findHeaderByKey(key string) (*ClientHeader, error
 	return nil, errors.New("Not found value from header with key.")
 }
 
-func Uint2bytes(i int, size int) []byte {
-	bytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(bytes, uint64(i))
-	return bytes[8-size : 8]
-}
-
 func Encode(payload []byte, opcode int) []byte {
 	length := len(payload)
 	sendType := 0
@@ -61,8 +56,8 @@ func Encode(payload []byte, opcode int) []byte {
 	}
 
 	body := []byte{}
-	body = append(body, Uint2bytes(128 + opcode, 1)...)
-	body = append(body, Uint2bytes(sendType, 1)...)
+	body = append(body, util.Uint2bytes(128 + opcode, 1)...)
+	body = append(body, util.Uint2bytes(sendType, 1)...)
 
 	if sendType == 126 {
 		size := make([]byte, 2)
