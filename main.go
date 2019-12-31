@@ -44,12 +44,12 @@ func main() {
 
 		fmt.Printf("Start camera receiving server %v\n", listener.Addr())
 
-		clients := []net.Conn{}
+		clients := []websocket.WebSocketClient{}
 		go func() {
 			for {
 				select  {
 				case client := <-clientChannel:
-					fmt.Printf("Client connected %v\n", client.RemoteAddr())
+					fmt.Printf("Client connected %v\n", client.Client.RemoteAddr())
 					mutex.Lock()
 					clients = append(clients, client)
 					mutex.Unlock()
@@ -108,11 +108,11 @@ func main() {
 
 					mutex.Lock()
 					for _, client := range clients {
-						if _, err := client.Write(data); err != nil {
+						if _, err := client.Client.Write(data); err != nil {
 							// Recreate new clients slice.
 							fmt.Printf("Failed to write%v\n", client.RemoteAddr())
 
-							tmpClients := []net.Conn{}
+							tmpClients := []websocket.WebSocketClient{}
 							for _, tmpClient := range clients {
 								if tmpClient != client {
 									tmpClients = append(tmpClients, tmpClient)
