@@ -40,10 +40,14 @@ func main() {
 		counter := 1
 		for {
 			fmt.Printf("Write a data %d\n", counter)
+			fmt.Printf("Size: %d\n", len(exampleImageBuffer))
 
 			buffer := []byte{}
+			frameBuffer := make([]byte, 4)
+			binary.BigEndian.PutUint32(frameBuffer, uint32(len(exampleImageBuffer)))
+
 			buffer = append(buffer, os.Getenv("AUTH_KEY")...)
-			binary.BigEndian.PutUint32(buffer, uint32(len(exampleImageBuffer)))
+			buffer = append(buffer, frameBuffer...)
 			buffer = append(buffer, exampleImageBuffer...)
 
 			_, err = connection.Write(buffer)
