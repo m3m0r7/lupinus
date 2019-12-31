@@ -29,8 +29,6 @@ func main() {
 		return
 	}
 
-	fmt.Println(string(exampleImageBuffer))
-
 	for {
 		connection, err := net.Dial("tcp", "localhost:31000")
 		if err != nil {
@@ -45,10 +43,13 @@ func main() {
 
 			buffer := []byte{}
 			buffer = append(buffer, os.Getenv("AUTH_KEY")...)
-			binary.BigEndian.PutUint32(buffer, uint32(32))
+			binary.BigEndian.PutUint32(buffer, uint32(len(exampleImageBuffer)))
+			buffer = append(buffer, exampleImageBuffer...)
 
-
-			connection.Write(buffer)
+			_, err = connection.Write(buffer)
+			if err != nil {
+				fmt.Printf("Failed to write %d\n", counter)
+			}
 			counter++
 			time.Sleep(5 * time.Second)
 		}
