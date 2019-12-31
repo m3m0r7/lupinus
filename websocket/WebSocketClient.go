@@ -25,6 +25,10 @@ const (
 	OPCODE_PONG = 0x0A
 )
 
+const (
+	MAX_HEADERS_LINE = 128
+)
+
 type ClientHeader struct {
 	Key string
 	Value string
@@ -150,7 +154,11 @@ func Upgrade(client net.Conn) (*WebSocketClient, error) {
 	headers := []ClientHeader{}
 	scanner := bufio.NewScanner(client)
 
+	remaining := MAX_HEADERS_LINE
 	for scanner.Scan() {
+		if remaining == 0 {
+			return nil, errors.New("Requested headers are overflow.")
+		}
 		line := scanner.Text()
 		if line == "" {
 			break
@@ -170,6 +178,7 @@ func Upgrade(client net.Conn) (*WebSocketClient, error) {
 			}
 		}
 		headers = append(headers, clientHeader)
+		remaining--
 	}
 
 	wsClient := WebSocketClient{
@@ -177,16 +186,6 @@ func Upgrade(client net.Conn) (*WebSocketClient, error) {
 		Handshake: true,
 		Headers: headers,
 	}
-
-	client.Write(
-		[]byte("HTTP/1.1 101 Switching Protocols\n"),
-	)
-	client.Write(
-		[]byte("Upgrade: websocket\n"),
-	)
-	client.Write(
-		[]byte("Connection: upgrade\n"),
-	)
 
 	result, err := wsClient.findHeaderByKey("sec-websocket-key")
 
@@ -205,12 +204,16 @@ func Upgrade(client net.Conn) (*WebSocketClient, error) {
 		),
 	)
 
-	client.Write(
-		[]byte("Sec-WebSocket-Accept: " + wsAcceptHeader + "\n"),
-	)
-	client.Write(
-		[]byte("\n"),
-	)
+	sendHeaders :=  "HTTP/1.1 101 Switching Protocols\n" +
+		"Upgrade: websocket\n" +
+		"Connection: upgrade\n" +
+		"Sec-WebSocket-Accept: " + wsAcceptHeader + "\n" +
+		"\n"
+
+	_, err = client.Write([]byte(sendHeaders))
+	if err != nil {
+		return nil, errors.New("Failed to write")
+	}
 
 	return &wsClient, nil
 }

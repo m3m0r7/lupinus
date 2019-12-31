@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 	"./websocket"
+	"./util"
 )
 
 func main() {
@@ -66,7 +67,6 @@ func main() {
 					go func () {
 						for {
 							result, opcode, err := client.Decode()
-							fmt.Printf("payload = %s\n", result)
 							if err != nil {
 								err = client.Client.Close()
 								mutex.Lock()
@@ -156,11 +156,17 @@ func main() {
 						return
 					}
 
-					data := realFrame[:receivedImageDataSize]
-
 					mutex.Lock()
 					for _, client := range clients {
-						if _, err := client.Client.Write(client.Encode(data, websocket.OPCODE_BINARY)); err != nil {
+						_, err := client.Client.Write(
+							client.Encode(
+								util.Byte2base64URI(
+									realFrame[:receivedImageDataSize],
+								),
+								websocket.OPCODE_BINARY,
+							),
+						)
+						if err != nil {
 							// Recreate new clients slice.
 							fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
 							clients = client.RemoveFromClients(clients)
