@@ -6,7 +6,6 @@ import (
 	"github.com/joho/godotenv"
 	"net"
 	"os"
-	"reflect"
 	"sync"
 	"./websocket"
 )
@@ -63,6 +62,49 @@ func main() {
 					mutex.Lock()
 					clients = append(clients, client)
 					mutex.Unlock()
+
+					go func () {
+						for {
+							result, opcode, err := client.Decode()
+							fmt.Printf("payload = %s\n", result)
+							if err != nil {
+								err = client.Client.Close()
+								mutex.Lock()
+								clients = client.RemoveFromClients(clients)
+								mutex.Unlock()
+								return
+							}
+
+							switch opcode {
+							case websocket.OPCODE_CLOSE:
+								_, err := client.Client.Write(
+									client.Encode(result, websocket.OPCODE_CLOSE),
+								)
+								err = client.Client.Close()
+								_ = err
+
+								mutex.Lock()
+								clients = client.RemoveFromClients(clients)
+								mutex.Unlock()
+								return
+							case websocket.OPCODE_PING:
+								_, err := client.Client.Write(
+									client.Encode(result, websocket.OPCODE_PONG),
+								)
+								if err != nil {
+									err = client.Client.Close()
+									mutex.Lock()
+									clients = client.RemoveFromClients(clients)
+									mutex.Unlock()
+									return
+								}
+								break
+							default:
+								// Nothing to do
+								break
+							}
+						}
+					}()
 				}
 			}
 		}()
@@ -118,17 +160,10 @@ func main() {
 
 					mutex.Lock()
 					for _, client := range clients {
-						if _, err := client.Client.Write(websocket.Encode(data, websocket.OPCODE_BINARY)); err != nil {
+						if _, err := client.Client.Write(client.Encode(data, websocket.OPCODE_BINARY)); err != nil {
 							// Recreate new clients slice.
 							fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
-
-							tmpClients := []websocket.WebSocketClient{}
-							for _, tmpClient := range clients {
-								if !reflect.DeepEqual(tmpClient, client) {
-									tmpClients = append(tmpClients, tmpClient)
-								}
-							}
-							clients = tmpClients
+							clients = client.RemoveFromClients(clients)
 						}
 					}
 					mutex.Unlock()

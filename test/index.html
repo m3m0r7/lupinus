@@ -6,6 +6,10 @@
         const ws = new WebSocket("ws://localhost:30000");
         ws.onopen = () => {
             console.log('Connected.');
+
+            setInterval(() => {
+                ws.send("hogehoge")
+            }, 5000)
         }
         ws.onmessage = (data) => {
             console.log(data);

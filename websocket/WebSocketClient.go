@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"net"
+	"reflect"
 	"strings"
 	"../util"
 )
@@ -35,6 +36,16 @@ type WebSocketClient struct {
 	Handshake bool
 }
 
+func (client *WebSocketClient) RemoveFromClients(clients []WebSocketClient) []WebSocketClient {
+	tmpClients := []WebSocketClient{}
+	for _, tmpClient := range clients {
+		if !reflect.DeepEqual(tmpClient, client) {
+			tmpClients = append(tmpClients, tmpClient)
+		}
+	}
+	return tmpClients
+}
+
 func (client *WebSocketClient) findHeaderByKey(key string) (*ClientHeader, error) {
 	for _, clientHeader := range client.Headers {
 		if clientHeader.Key == key {
@@ -44,7 +55,70 @@ func (client *WebSocketClient) findHeaderByKey(key string) (*ClientHeader, error
 	return nil, errors.New("Not found value from header with key.")
 }
 
-func Encode(payload []byte, opcode int) []byte {
+func (client *WebSocketClient) Decode() ([]byte, int, error) {
+	kindByte := make([]byte, 2)
+	_, err := client.Client.Read(kindByte)
+	if err != nil {
+		return nil, -1, err
+	}
+
+	isFin := kindByte[0] >> 7
+	if isFin > 1 || isFin < 0 {
+		return nil, -1, errors.New("Invalid fin flag.")
+	}
+
+	opcode := ((kindByte[0] << 4) & 0xff) >> 4
+
+	switch opcode {
+	case OPCODE_FIN:
+	case OPCODE_MESSAGE:
+	case OPCODE_BINARY:
+	case OPCODE_CLOSE:
+	case OPCODE_PING:
+	case OPCODE_PONG:
+		// nothing to do
+		break
+	default:
+		return nil, -1, errors.New("Invalid Operation Code")
+	}
+
+	maskFlag := (kindByte[1] >> 7) & 0xff
+	if maskFlag > 1 || maskFlag < 0 {
+		return nil, -1, errors.New("Invalid mask flag.")
+	}
+
+	receivedType := ((kindByte[1] << 1) & 0xff) >> 1
+	var length int
+	if receivedType == 126 {
+		readMore := make([]byte, 2)
+		_, err = client.Client.Read(readMore)
+		length = int(binary.BigEndian.Uint16(readMore))
+	} else if receivedType == 127 {
+		readMore := make([]byte, 8)
+		_, err = client.Client.Read(readMore)
+		length = int(binary.BigEndian.Uint64(readMore))
+	} else {
+		length = int(receivedType)
+	}
+
+	maskData := make([]byte, 4)
+	if maskFlag == 1 {
+		client.Client.Read(maskData)
+	}
+
+	payload := make([]byte, length)
+	client.Client.Read(payload)
+
+	if maskFlag == 1 {
+		for i, char := range payload {
+			payload[i] = char ^ maskData[i % 4]
+		}
+	}
+
+	return payload, int(opcode), nil
+}
+
+func (client *WebSocketClient) Encode(payload []byte, opcode int) []byte {
 	length := len(payload)
 	sendType := 0
 	if length > 0xffff {
