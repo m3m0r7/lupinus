@@ -118,7 +118,7 @@ func main() {
 
 					mutex.Lock()
 					for _, client := range clients {
-						if _, err := client.Client.Write(data); err != nil {
+						if _, err := client.Client.Write(websocket.Encode(data, websocket.OPCODE_BINARY)); err != nil {
 							// Recreate new clients slice.
 							fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
 

@@ -4,12 +4,24 @@ import (
 	"bufio"
 	"crypto/sha1"
 	"encoding/base64"
+	"encoding/binary"
 	"errors"
 	"net"
 	"strings"
 )
 
+// WebSocket key ID.
 const ID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+// Operation codes.
+const (
+	OPCODE_FIN = 0x00
+	OPCODE_MESSAGE = 0x01
+	OPCODE_BINARY = 0x02
+	OPCODE_CLOSE = 0x08
+	OPCODE_PING = 0x09
+	OPCODE_PONG = 0x0A
+)
 
 type ClientHeader struct {
 	Key string
@@ -29,6 +41,40 @@ func (client *WebSocketClient) findHeaderByKey(key string) (*ClientHeader, error
 		}
 	}
 	return nil, errors.New("Not found value from header with key.")
+}
+
+func Uint2bytes(i int, size int) []byte {
+	bytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(bytes, uint64(i))
+	return bytes[8-size : 8]
+}
+
+func Encode(payload []byte, opcode int) []byte {
+	length := len(payload)
+	sendType := 0
+	if length > 0xffff {
+		sendType = 127
+	} else if length <= 0xffff && length >= 126 {
+		sendType = 126
+	} else {
+		sendType = length
+	}
+
+	body := []byte{}
+	body = append(body, Uint2bytes(128 + opcode, 1)...)
+	body = append(body, Uint2bytes(sendType, 1)...)
+
+	if sendType == 126 {
+		size := make([]byte, 2)
+		binary.BigEndian.PutUint16(size, uint16(length))
+		body = append(body, size...)
+	} else if sendType == 127 {
+		size := make([]byte, 8)
+		binary.BigEndian.PutUint64(size, uint64(length))
+		body = append(body, size...)
+	}
+
+	return append(body, payload...)
 }
 
 func Upgrade(client net.Conn) (*WebSocketClient, error) {

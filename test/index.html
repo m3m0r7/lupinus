@@ -9,6 +9,10 @@
         }
         ws.onmessage = (data) => {
             console.log(data);
+
+        }
+        ws.onerror = (e) => {
+            console.log(e);
         }
         ws.onclose = () => {
             console.log('Closed');
