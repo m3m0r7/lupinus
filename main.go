@@ -82,7 +82,7 @@ func main() {
 			illegalPacketCounter := maxIllegalPacketCounter
 			for {
 				if illegalPacketCounter == 0 {
-					fmt.Printf("connected from illegal connection.")
+					fmt.Printf("Respond invalid frame data. retry to listen.\n")
 					connection.Close()
 					return
 				}
@@ -95,6 +95,7 @@ func main() {
 				}
 				illegalPacketCounter = maxIllegalPacketCounter
 
+				// Broadcast to connected all clients.
 				websocket.Broadcast(
 					&data,
 					loops,

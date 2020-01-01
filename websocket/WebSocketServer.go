@@ -2,9 +2,7 @@ package websocket
 
 import (
 	"fmt"
-	"net"
 	"sync"
-	"../subscriber"
 )
 
 func (client *WebSocketClient) ReceivedClose(response []byte) error {
@@ -77,13 +75,14 @@ func Broadcast(data *[][]byte, size int, clients *[]WebSocketClient, mutex *sync
 					client.Encode(
 						(*data)[i],
 						opcode,
-						i == size,
+						(i + 1) == size,
 					),
 				)
 				if err != nil {
 					// Recreate new clients slice.
 					fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
 					*clients = client.RemoveFromClientsWithLock(*clients, mutex)
+					return
 				}
 			}
 		}()
