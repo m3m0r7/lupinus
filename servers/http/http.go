@@ -1,16 +1,25 @@
 package http
 
 import (
-	"../../client"
 	"net"
 	"net/url"
 )
+
+type ClientHeader struct {
+	Key string
+	Value string
+}
+
+type Client struct {
+	Pipe net.Conn
+	Headers []ClientHeader
+}
 
 type HttpClientMeta struct {
 	Protocol string
 	Pipe net.Conn
 	Method string
-	Headers []client.ClientHeader
+	Headers []ClientHeader
 	Path url.URL
 }
 
@@ -20,7 +29,7 @@ type HttpBody struct {
 
 type HttpHeader struct {
 	Status int
-	Headers []client.ClientHeader
+	Headers []ClientHeader
 }
 
 type ErrorMessage struct {

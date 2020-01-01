@@ -8,6 +8,7 @@ import (
 	"net"
 	"reflect"
 	"../util"
+	"../servers/http"
 	parent "../client"
 	"sync"
 )
@@ -32,7 +33,7 @@ const (
 
 type WebSocketClient struct {
 	Pipe net.Conn
-	Headers []parent.ClientHeader
+	Headers []http.ClientHeader
 	Handshake bool
 }
 
@@ -52,7 +53,7 @@ func (client *WebSocketClient) RemoveFromClients(clients []WebSocketClient) []We
 	return tmpClients
 }
 
-func (client *WebSocketClient) findHeaderByKey(key string) (*parent.ClientHeader, error) {
+func (client *WebSocketClient) findHeaderByKey(key string) (*http.ClientHeader, error) {
 	for _, clientHeader := range client.Headers {
 		if clientHeader.Key == key {
 			return &clientHeader, nil

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"strings"
+	"../servers/http"
 )
 
 const (
@@ -12,18 +13,7 @@ const (
 	maxRetryToWriteCounter = 3
 )
 
-type ClientHeader struct {
-	Key string
-	Value string
-}
-
-type Client struct {
-	Pipe net.Conn
-	Headers []ClientHeader
-}
-
-
-func FindHeaderByKey(headers []ClientHeader, key string) (*ClientHeader, error) {
+func FindHeaderByKey(headers []http.ClientHeader, key string) (*http.ClientHeader, error) {
 	for _, clientHeader := range headers {
 		if clientHeader.Key == key {
 			return &clientHeader, nil
@@ -32,9 +22,9 @@ func FindHeaderByKey(headers []ClientHeader, key string) (*ClientHeader, error) 
 	return nil, errors.New("Not found value from header with key.")
 }
 
-func GetAllHeaders(conn net.Conn) ([]ClientHeader, error) {
+func GetAllHeaders(conn net.Conn) ([]http.ClientHeader, error) {
 
-	headers := []ClientHeader{}
+	headers := []http.ClientHeader{}
 	scanner := bufio.NewScanner(conn)
 
 	remaining := maxHeadersLine
@@ -49,13 +39,13 @@ func GetAllHeaders(conn net.Conn) ([]ClientHeader, error) {
 		result := strings.Split(line, ":")
 
 		// If not exists :, set key to zero value
-		clientHeader := ClientHeader{}
+		clientHeader := http.ClientHeader{}
 		if len(result) <= 1 {
-			clientHeader = ClientHeader {
+			clientHeader = http.ClientHeader {
 				Value: strings.Trim(result[0], " "),
 			}
 		} else {
-			clientHeader = ClientHeader {
+			clientHeader = http.ClientHeader {
 				Key: strings.ToLower(strings.Trim(result[0], " ")),
 				Value: strings.Trim(result[1], " "),
 			}

@@ -1,4 +1,4 @@
-package http
+package web
 
 import (
 	"encoding/json"
@@ -6,8 +6,9 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"../../client"
-	"../../util"
+	"../../../client"
+	"../../../util"
+	"../../http"
 	"strconv"
 	"strings"
 )
@@ -56,14 +57,14 @@ func Listen() {
 				return
 			}
 
-			clientMeta := HttpClientMeta{
+			clientMeta := http.HttpClientMeta{
 				Pipe: connection,
 				Method: method,
 				Path: *urlObject,
 				Protocol: protocol,
 			}
 
-			responseBody, responseHeader, _ := connect(clientMeta)
+			responseBody, responseHeader, _ := Connect(clientMeta)
 
 			resultJSON, _ := json.Marshal(responseBody.Payload)
 

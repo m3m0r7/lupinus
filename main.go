@@ -5,7 +5,7 @@ import (
 	"os"
 	"github.com/joho/godotenv"
 	"./servers/streaming"
-	"./servers/http"
+	"./servers/http/web"
 	"sync"
 )
 
@@ -21,7 +21,7 @@ func main() {
 
 	// Start listen servers
 	go camera.Listen()
-	go http.Listen()
+	go web.Listen()
 
 	wg.Wait()
 }
