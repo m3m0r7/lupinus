@@ -8,6 +8,7 @@ import (
 	"os"
 	"../../client"
 	"../../util"
+	"strconv"
 	"strings"
 )
 
@@ -60,39 +61,29 @@ func Listen() {
 			//case "/":
 				//responseBody, responseHeader = controller.RequestRoot(clientMeta)
 				//break
+			case "/favicon.ico":
+				writeData := "" +
+					rule + " " + util.GetStatusCodeWithNameByCode(404) + "\n" +
+					"Content-Length: 0\n" +
+					"\n"
+				connection.Write([]byte(writeData))
+				connection.Close()
+				return
 			default:
 				responseBody, responseHeader = requestFallback(clientMeta)
 				break
 			}
 
 			resultJSON, _ := json.Marshal(responseBody.Payload)
-			_ = resultJSON
-			_ = responseHeader
 
 			stringifiedJSON := string(resultJSON)
-			statusWithName := "200 OK"
-
-			// Set status code
-			if responseHeader.Status == 400 {
-				statusWithName = "400 Bad Request"
-			}
-
-			if responseHeader.Status == 404 {
-				statusWithName = "404 Not Found"
-			}
-
-			if responseHeader.Status == 403 {
-				statusWithName = "403 Forbidden"
-			}
-
-			if responseHeader.Status == 500 {
-				statusWithName = "500 Internal Server Error"
-			}
-
+			statusWithName := util.GetStatusCodeWithNameByCode(
+				responseHeader.Status,
+			)
 			// Write buffer
 			writeData := "" +
 				rule + " " + statusWithName + "\n" +
-				"Content-Length: " + string(len(stringifiedJSON)) + "\n" +
+				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
 				"Content-Type: application/json\n" +
 				"\n" +
 				stringifiedJSON
