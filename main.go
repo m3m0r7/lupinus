@@ -18,7 +18,8 @@ const (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
+	dir, _ := os.Getwd()
+	if err := godotenv.Load(dir + "/.env"); err != nil {
 		fmt.Printf("Failed to load an env file: %v\n", err)
 		return
 	}
