@@ -168,7 +168,7 @@ func Upgrade(conn net.Conn) (*WebSocketClient, error) {
 
 	headers, _ := parent.GetAllHeaders(conn)
 	result, err := parent.FindHeaderByKey(
-		&headers,
+		headers,
 		"sec-websocket-key",
 	)
 

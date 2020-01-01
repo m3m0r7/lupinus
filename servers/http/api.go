@@ -26,16 +26,24 @@ func Listen() {
 		}
 
 		go func() {
+			defer connection.Close()
+
+			fmt.Printf("Connected from: %v\n", connection.RemoteAddr())
+
 			// Get headers
 			headers, _ := client.GetAllHeaders(connection)
-			result, _ := client.FindHeaderByKey(&headers, "")
-			status := util.SplitWithFiltered(result.Value, " ")
+			result, err := client.FindHeaderByKey(headers, "")
 
+			if err != nil {
+				fmt.Printf("Invalid connection")
+				return
+			}
+
+			status := util.SplitWithFiltered(result.Value, " ")
 			if len(status) != 3 {
 				fmt.Printf("Invalid header")
 				return
 			}
-
 
 			method := strings.ToLower(status[0])
 			path := status[1]
@@ -58,16 +66,15 @@ func Listen() {
 			responseHeader := &HttpHeader{}
 
 			switch urlObject.Path {
-			//case "/":
-				//responseBody, responseHeader = controller.RequestRoot(clientMeta)
-				//break
+			case "/":
+				responseBody, responseHeader = requestRoot(clientMeta)
+				break
 			case "/favicon.ico":
 				writeData := "" +
 					rule + " " + util.GetStatusCodeWithNameByCode(404) + "\n" +
 					"Content-Length: 0\n" +
 					"\n"
 				connection.Write([]byte(writeData))
-				connection.Close()
 				return
 			default:
 				responseBody, responseHeader = requestFallback(clientMeta)
@@ -89,7 +96,6 @@ func Listen() {
 				stringifiedJSON
 
 			connection.Write([]byte(writeData))
-			connection.Close()
 		}()
 	}
 }
@@ -105,4 +111,15 @@ func requestFallback(client HttpClientMeta) (*HttpBody, *HttpHeader) {
 	return &body, &HttpHeader{
 		Status: 404,
 	}
+}
+
+func requestRoot(client HttpClientMeta)  (*HttpBody, *HttpHeader) {
+	body := HttpBody{
+		Payload: map[string]interface{}{
+			"code": -1,
+			"message": ":gopher:",
+		},
+	}
+
+	return &body, &HttpHeader{}
 }
