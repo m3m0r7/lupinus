@@ -26,3 +26,11 @@ func SplitWithFiltered(data string, sep string) []string {
 	}
 	return newSeparated
 }
+
+func GetFromMap(key string, mapObject map[string]interface{}) interface{} {
+	val, ok := mapObject[key]
+	if !ok {
+		return nil
+	}
+	return val
+}

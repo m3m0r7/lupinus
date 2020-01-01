@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"../../../http"
+	"../../../../util"
 	"../../../../model"
+	"../../../http"
 	"encoding/json"
-	"fmt"
 )
 
 func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -20,17 +20,25 @@ func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		return nil, nil
 	}
 
-	dest := []byte{}
-	err := json.Unmarshal(dest, clientMeta.Payload)
+	jsonData := map[string]interface{}{}
+	err := json.Unmarshal(clientMeta.Payload, &jsonData)
 
 	if err != nil {
 		return nil, nil
 	}
 
-	fmt.Printf("%v", dest)
+	username := util.GetFromMap("username", jsonData)
+	password := util.GetFromMap("password", jsonData)
 
-	user := model.InitUser()
-	(*user).Find()
+	if username == nil || password == nil {
+		return nil, nil
+	}
+
+	user := *model.InitUser()
+	user.Find(
+		username.(string),
+		password.(string),
+	)
 
 	return &body, &http.HttpHeader{
 		Status: 404,

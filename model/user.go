@@ -24,7 +24,7 @@ func InitUser() *Model {
 	}
 
 	initializedInstance = &Model{
-		records: jsonData,
+		Records: jsonData,
 	}
 
 	return initializedInstance

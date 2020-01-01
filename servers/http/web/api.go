@@ -100,7 +100,7 @@ func Listen() {
 				clientMeta.Protocol + " " + statusWithName + "\n" +
 				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
 				"Content-Type: application/json\n" +
-				"Connection: close" +
+				"Connection: close\n" +
 				"\n" +
 				stringifiedJSON
 
