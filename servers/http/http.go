@@ -7,6 +7,7 @@ import (
 )
 
 type HttpClientMeta struct {
+	Protocol string
 	Pipe net.Conn
 	Method string
 	Headers []client.ClientHeader

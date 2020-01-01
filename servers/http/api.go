@@ -47,7 +47,7 @@ func Listen() {
 
 			method := strings.ToLower(status[0])
 			path := status[1]
-			rule := status[2]
+			protocol := status[2]
 
 			urlObject, parseError := url.Parse(path)
 
@@ -60,26 +60,10 @@ func Listen() {
 				Pipe: connection,
 				Method: method,
 				Path: *urlObject,
+				Protocol: protocol,
 			}
 
-			responseBody := &HttpBody{}
-			responseHeader := &HttpHeader{}
-
-			switch urlObject.Path {
-			case "/":
-				responseBody, responseHeader = requestRoot(clientMeta)
-				break
-			case "/favicon.ico":
-				writeData := "" +
-					rule + " " + util.GetStatusCodeWithNameByCode(404) + "\n" +
-					"Content-Length: 0\n" +
-					"\n"
-				connection.Write([]byte(writeData))
-				return
-			default:
-				responseBody, responseHeader = requestFallback(clientMeta)
-				break
-			}
+			responseBody, responseHeader, _ := connect(clientMeta)
 
 			resultJSON, _ := json.Marshal(responseBody.Payload)
 
@@ -89,7 +73,7 @@ func Listen() {
 			)
 			// Write buffer
 			writeData := "" +
-				rule + " " + statusWithName + "\n" +
+				clientMeta.Protocol + " " + statusWithName + "\n" +
 				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
 				"Content-Type: application/json\n" +
 				"\n" +
@@ -98,28 +82,4 @@ func Listen() {
 			connection.Write([]byte(writeData))
 		}()
 	}
-}
-
-
-func requestFallback(client HttpClientMeta) (*HttpBody, *HttpHeader) {
-	body := HttpBody {
-		Payload: map[string]interface{}{
-			"code": -1,
-			"message": "No data",
-		},
-	}
-	return &body, &HttpHeader{
-		Status: 404,
-	}
-}
-
-func requestRoot(client HttpClientMeta)  (*HttpBody, *HttpHeader) {
-	body := HttpBody{
-		Payload: map[string]interface{}{
-			"code": -1,
-			"message": ":gopher:",
-		},
-	}
-
-	return &body, &HttpHeader{}
 }
