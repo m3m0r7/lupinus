@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"../../../util"
 	"../../http"
 	"./controller"
@@ -24,7 +23,7 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 			"Content-Length: 0\n" +
 			"\n"
 		clientMeta.Pipe.Write([]byte(writeData))
-		return nil, nil, errors.New("")
+		return nil, nil, nil
 	default:
 		responseBody, responseHeader = controller.RequestFallback(clientMeta)
 		break

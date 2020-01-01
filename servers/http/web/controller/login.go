@@ -2,9 +2,7 @@ package controller
 
 import (
 	"../../../http"
-	"fmt"
-	"io/ioutil"
-	"os"
+	"../../../../model"
 )
 
 func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -15,12 +13,15 @@ func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		},
 	}
 
-	// Read user file
-	dir, _ := os.Getwd()
-	userJsonPathHandler, _ := os.Open(dir + "/users.json")
-	userData, _ := ioutil.ReadAll(userJsonPathHandler)
+	// Do not allowed received method.
+	if clientMeta.Method != "POST" {
+		return nil, nil
+	}
 
-	fmt.Printf("%v\n", string(userData))
+
+
+	user := model.InitUser()
+	(*user).Find()
 
 	return &body, &http.HttpHeader{
 		Status: 404,

@@ -21,6 +21,7 @@ type HttpClientMeta struct {
 	Method string
 	Headers []ClientHeader
 	Path url.URL
+	Body []byte
 }
 
 type HttpBody struct {

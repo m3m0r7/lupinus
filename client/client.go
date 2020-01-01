@@ -1,11 +1,11 @@
 package client
 
 import (
-	"bufio"
+	"../servers/http"
+	"../util"
 	"errors"
 	"net"
 	"strings"
-	"../servers/http"
 )
 
 const (
@@ -25,17 +25,21 @@ func FindHeaderByKey(headers []http.ClientHeader, key string) (*http.ClientHeade
 func GetAllHeaders(conn net.Conn) ([]http.ClientHeader, error) {
 
 	headers := []http.ClientHeader{}
-	scanner := bufio.NewScanner(conn)
-
 	remaining := maxHeadersLine
-	for scanner.Scan() {
+
+	for {
 		if remaining == 0 {
 			return nil, errors.New("Requested headers are overflow.")
 		}
-		line := scanner.Text()
+		lineBytes := []byte{}
+		util.ReadTo(conn, &lineBytes, []byte("\n"))
+
+		line := strings.TrimSpace(string(lineBytes))
+
 		if line == "" {
 			break
 		}
+
 		result := strings.Split(line, ":")
 
 		// If not exists :, set key to zero value
@@ -53,7 +57,6 @@ func GetAllHeaders(conn net.Conn) ([]http.ClientHeader, error) {
 		headers = append(headers, clientHeader)
 		remaining--
 	}
-
 	return headers, nil
 }
 

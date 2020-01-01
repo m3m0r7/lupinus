@@ -1,14 +1,14 @@
 package web
 
 import (
+	"../../../client"
+	"../../../util"
+	"../../http"
 	"encoding/json"
 	"fmt"
 	"net"
 	"net/url"
 	"os"
-	"../../../client"
-	"../../../util"
-	"../../http"
 	"strconv"
 	"strings"
 )
@@ -50,6 +50,17 @@ func Listen() {
 			path := status[1]
 			protocol := status[2]
 
+			// Next find body size
+			result, err = client.FindHeaderByKey(headers, "content-length")
+
+			requestBody := []byte{}
+			if result != nil {
+				number, _ := strconv.Atoi(result.Value)
+				reads := make([]byte, number)
+				connection.Read(reads)
+				requestBody = append(requestBody, reads...)
+			}
+
 			urlObject, parseError := url.Parse(path)
 
 			if parseError != nil {
@@ -57,11 +68,14 @@ func Listen() {
 				return
 			}
 
+			// TODO: Validator
+
 			clientMeta := http.HttpClientMeta{
 				Pipe: connection,
-				Method: method,
+				Method: strings.ToUpper(method),
 				Path: *urlObject,
 				Protocol: protocol,
+				Body: requestBody,
 			}
 
 			responseBody, responseHeader, _ := Connect(clientMeta)
