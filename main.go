@@ -9,6 +9,12 @@ import (
 	"sync"
 	"./websocket"
 	"./util"
+	"./validator"
+)
+
+const (
+	CHUNK_SIZE = 8192
+	MAX_ILLEGAL_PACKET_COUNTER = 5
 )
 
 func main() {
@@ -46,7 +52,7 @@ func main() {
 	}()
 
 	go func() {
-		var mutex sync.Mutex
+		mutex := sync.Mutex{}
 		listener, _ := net.Listen(
 			"tcp",
 			os.Getenv("CAMERA_SERVER"),
@@ -78,7 +84,11 @@ func main() {
 							switch opcode {
 							case websocket.OPCODE_CLOSE:
 								_, err := client.Client.Write(
-									client.Encode(result, websocket.OPCODE_CLOSE),
+									client.Encode(
+										result,
+										websocket.OPCODE_CLOSE,
+										true,
+									),
 								)
 								err = client.Client.Close()
 								_ = err
@@ -89,7 +99,11 @@ func main() {
 								return
 							case websocket.OPCODE_PING:
 								_, err := client.Client.Write(
-									client.Encode(result, websocket.OPCODE_PONG),
+									client.Encode(
+										result,
+										websocket.OPCODE_PONG,
+										true,
+									),
 								)
 								if err != nil {
 									err = client.Client.Close()
@@ -117,22 +131,28 @@ func main() {
 
 			go func() {
 				fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
+				illegalPacketCounter := MAX_ILLEGAL_PACKET_COUNTER
 				for {
+					if illegalPacketCounter == 0 {
+						fmt.Printf("connected from illegal connection.")
+						connection.Close()
+						return
+					}
 					readAuthKey := make([]byte, authKeySize)
 					receivedAuthKeySize, err := connection.Read(readAuthKey)
 					if err != nil {
 						fmt.Printf("err = %+v\n", err)
 
-						// Retry to listen from the camera server.
-						return
+						illegalPacketCounter--
+						continue
 					}
 
 					// Compare the received auth key and settled auth key.
 					if string(readAuthKey[:receivedAuthKeySize]) != authKey {
 						fmt.Printf("err = %+v\n", err)
 
-						// Retry to listen from the camera server.
-						return
+						illegalPacketCounter--
+						continue
 					}
 
 					// Receive frame size
@@ -141,8 +161,8 @@ func main() {
 					if errReceivingFrameSize != nil {
 						fmt.Printf("err = %+v\n", err)
 
-						// Retry to listen from the camera server.
-						return
+						illegalPacketCounter--
+						continue
 					}
 
 					realFrameSize := binary.BigEndian.Uint32(frameSize)
@@ -152,27 +172,52 @@ func main() {
 					if errReceivingRealFrame != nil {
 						fmt.Printf("err = %+v\n", err)
 
-						// Retry to listen from the camera server.
-						return
+						illegalPacketCounter--
+						continue
 					}
 
-					mutex.Lock()
-					for _, client := range clients {
-						_, err := client.Client.Write(
-							client.Encode(
-								util.Byte2base64URI(
-									realFrame[:receivedImageDataSize],
-								),
-								websocket.OPCODE_BINARY,
-							),
-						)
-						if err != nil {
-							// Recreate new clients slice.
-							fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
-							clients = client.RemoveFromClients(clients)
-						}
+					frameData := realFrame[:receivedImageDataSize]
+
+					if !validator.IsImageJpeg(frameData) {
+						illegalPacketCounter--
+						continue
 					}
-					mutex.Unlock()
+
+					illegalPacketCounter = MAX_ILLEGAL_PACKET_COUNTER
+
+					// Chunk the too long data.
+					data, loops := util.Chunk(
+						util.Byte2base64URI(
+							frameData,
+						),
+						CHUNK_SIZE,
+					)
+
+					for _, client := range clients {
+						go func () {
+							for i := 0; i < loops; i++ {
+								opcode := websocket.OPCODE_BINARY
+								if i > 0 {
+									opcode = websocket.OPCODE_FIN
+								}
+								_, err := client.Client.Write(
+									client.Encode(
+										data[i],
+										opcode,
+										i == loops,
+									),
+								)
+								if err != nil {
+									// Recreate new clients slice.
+									fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
+
+									mutex.Lock()
+									clients = client.RemoveFromClients(clients)
+									mutex.Unlock()
+								}
+							}
+						}()
+					}
 				}
 			}()
 		}

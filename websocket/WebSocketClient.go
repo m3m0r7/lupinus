@@ -122,7 +122,7 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 	return payload, int(opcode), nil
 }
 
-func (client *WebSocketClient) Encode(payload []byte, opcode int) []byte {
+func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []byte {
 	length := len(payload)
 	sendType := 0
 	if length > 0xffff {
@@ -134,7 +134,12 @@ func (client *WebSocketClient) Encode(payload []byte, opcode int) []byte {
 	}
 
 	body := []byte{}
-	body = append(body, util.Uint2bytes(128 + opcode, 1)...)
+	finFlag := 0
+	if isFin {
+		finFlag = 128
+	}
+
+	body = append(body, util.Uint2bytes(finFlag + opcode, 1)...)
 	body = append(body, util.Uint2bytes(sendType, 1)...)
 
 	if sendType == 126 {
