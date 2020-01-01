@@ -36,13 +36,11 @@ func Listen() {
 			result, err := client.FindHeaderByKey(headers, "")
 
 			if err != nil {
-				fmt.Printf("Invalid connection")
 				return
 			}
 
 			status := util.SplitWithFiltered(result.Value, " ")
 			if len(status) != 3 {
-				fmt.Printf("Invalid header")
 				return
 			}
 
@@ -75,10 +73,21 @@ func Listen() {
 				Method: strings.ToUpper(method),
 				Path: *urlObject,
 				Protocol: protocol,
-				Body: requestBody,
+				Payload: requestBody,
 			}
 
 			responseBody, responseHeader, _ := Connect(clientMeta)
+
+			// If which is invalid processing, connection to shutdown.
+			if responseBody == nil || responseHeader == nil {
+				writeData := "" +
+					clientMeta.Protocol + " " + util.GetStatusCodeWithNameByCode(404) + "\n" +
+					"Content-Length: 0\n" +
+					"Connection: close\n" +
+					"\n"
+				clientMeta.Pipe.Write([]byte(writeData))
+				return
+			}
 
 			resultJSON, _ := json.Marshal(responseBody.Payload)
 
@@ -91,6 +100,7 @@ func Listen() {
 				clientMeta.Protocol + " " + statusWithName + "\n" +
 				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
 				"Content-Type: application/json\n" +
+				"Connection: close" +
 				"\n" +
 				stringifiedJSON
 

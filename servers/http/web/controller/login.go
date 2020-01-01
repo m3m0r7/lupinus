@@ -3,6 +3,8 @@ package controller
 import (
 	"../../../http"
 	"../../../../model"
+	"encoding/json"
+	"fmt"
 )
 
 func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -18,7 +20,14 @@ func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		return nil, nil
 	}
 
+	dest := []byte{}
+	err := json.Unmarshal(dest, clientMeta.Payload)
 
+	if err != nil {
+		return nil, nil
+	}
+
+	fmt.Printf("%v", dest)
 
 	user := model.InitUser()
 	(*user).Find()
