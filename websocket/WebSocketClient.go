@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strings"
 	"../util"
+	"sync"
 )
 
 // WebSocket key ID.
@@ -38,6 +39,12 @@ type WebSocketClient struct {
 	Client net.Conn
 	Headers []ClientHeader
 	Handshake bool
+}
+
+func (client *WebSocketClient) RemoveFromClientsWithLock(clients []WebSocketClient, mutex *sync.Mutex) []WebSocketClient {
+	mutex.Lock()
+	defer mutex.Unlock()
+	return client.RemoveFromClients(clients)
 }
 
 func (client *WebSocketClient) RemoveFromClients(clients []WebSocketClient) []WebSocketClient {
