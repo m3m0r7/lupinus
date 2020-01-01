@@ -1,14 +1,12 @@
 package websocket
 
 import (
-	"bufio"
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
 	"net"
 	"reflect"
-	"strings"
 	"../util"
 	parent "../client"
 	"sync"
@@ -169,7 +167,10 @@ func Upgrade(conn net.Conn) (*WebSocketClient, error) {
 	}
 
 	headers, _ := parent.GetAllHeaders(conn)
-	result, err := parent.FindHeaderByKey(headers, "sec-websocket-key")
+	result, err := parent.FindHeaderByKey(
+		&headers,
+		"sec-websocket-key",
+	)
 
 	if err != nil {
 		return nil, errors.New("Connected client is invalid.")

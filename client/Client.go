@@ -23,8 +23,8 @@ type Client struct {
 }
 
 
-func FindHeaderByKey(headers []ClientHeader, key string) (*ClientHeader, error) {
-	for _, clientHeader := range headers {
+func FindHeaderByKey(headers *[]ClientHeader, key string) (*ClientHeader, error) {
+	for _, clientHeader := range *headers {
 		if clientHeader.Key == key {
 			return &clientHeader, nil
 		}
