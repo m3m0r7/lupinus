@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"github.com/joho/godotenv"
 	"./servers/streaming"
 	"./servers/http/web"
@@ -10,8 +9,7 @@ import (
 )
 
 func main() {
-	dir, _ := os.Getwd()
-	if err := godotenv.Load(dir + "/.env"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		fmt.Printf("Failed to load an env file: %v\n", err)
 		return
 	}
