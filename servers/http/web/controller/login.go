@@ -5,6 +5,7 @@ import (
 	"../../../../model"
 	"../../../http"
 	"encoding/json"
+	"fmt"
 )
 
 func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -35,10 +36,12 @@ func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 	}
 
 	user := *model.InitUser()
-	user.Find(
+	userData := user.Find(
 		username.(string),
 		password.(string),
 	)
+
+	fmt.Printf("%v", userData)
 
 	return &body, &http.HttpHeader{
 		Status: 404,
