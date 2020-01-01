@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/joho/godotenv"
+	"image"
+	"image/jpeg"
 	"net"
 	"os"
 	"sync"
@@ -51,11 +54,41 @@ func main() {
 		}
 	}()
 
+
+	// First contact, We send an image which fulfilled black.
+	buffer := bytes.NewBuffer([]byte{})
+	filledImage := image.NewRGBA(
+		image.Rect(
+			0,
+			0,
+			640,
+			480,
+		),
+	)
+
+	_ = jpeg.Encode(
+		buffer,
+		filledImage,
+		&jpeg.Options{
+			100,
+		},
+	)
+
 	go func() {
 		for {
 			select {
 				case client := <-clientChannel:
 					fmt.Printf("Client connected %v\n", client.Client.RemoteAddr())
+
+					// Send black screen
+					_ = client.Write(
+						client.Encode(
+							buffer.Bytes(),
+							websocket.OpcodeBinary,
+							true,
+						),
+					)
+
 					client.StartListener(
 						&clients,
 						&mutex,

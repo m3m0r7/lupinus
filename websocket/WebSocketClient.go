@@ -28,6 +28,7 @@ const (
 
 const (
 	maxHeadersLine = 128
+	maxRetryToWriteCounter = 3
 )
 
 type ClientHeader struct {
@@ -127,6 +128,27 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 	}
 
 	return payload, int(opcode), nil
+}
+
+func (client *WebSocketClient) Write(data []byte) error {
+	realSize := len(data)
+	remaining := len(data)
+	read := 0
+	writeRetryCount := maxRetryToWriteCounter
+	for remaining > 0 {
+		n, err := client.Client.Write(data[read:realSize])
+		if err != nil {
+			if writeRetryCount == 0 {
+				// If write is missed, close connection
+				_ = client.Client.Close()
+				return err
+			}
+			writeRetryCount--
+		}
+		read += n
+		remaining -= n
+	}
+	return nil
 }
 
 func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []byte {

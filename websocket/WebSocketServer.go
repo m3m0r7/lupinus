@@ -6,7 +6,7 @@ import (
 )
 
 func (client *WebSocketClient) ReceivedClose(response []byte) error {
-	_, err := client.Client.Write(
+	err := client.Write(
 		client.Encode(
 			response,
 			OpcodeClose,
@@ -17,7 +17,7 @@ func (client *WebSocketClient) ReceivedClose(response []byte) error {
 }
 
 func (client *WebSocketClient) ReceivedPing(response []byte) error {
-	_, err := client.Client.Write(
+	err := client.Write(
 		client.Encode(
 			response,
 			OpcodePong,
@@ -71,7 +71,7 @@ func Broadcast(data *[][]byte, size int, clients *[]WebSocketClient, mutex *sync
 				if i > 0 {
 					opcode = OpcodeFin
 				}
-				_, err := client.Client.Write(
+				err := client.Write(
 					client.Encode(
 						(*data)[i],
 						opcode,
