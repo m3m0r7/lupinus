@@ -37,7 +37,7 @@ func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, mutex *
 		for {
 			receivedResponse, opcode, err := client.Decode()
 			if err != nil {
-				err = client.Client.Close()
+				err = client.Pipe.Close()
 				*clients = client.RemoveFromClientsWithLock(*clients, mutex)
 				return
 			}
@@ -50,7 +50,7 @@ func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, mutex *
 			case OpcodePing:
 				err = client.ReceivedPing(receivedResponse)
 				if err != nil {
-					err = client.Client.Close()
+					err = client.Pipe.Close()
 					*clients = client.RemoveFromClientsWithLock(*clients, mutex)
 					return
 				}
@@ -80,7 +80,7 @@ func Broadcast(data *[][]byte, size int, clients *[]WebSocketClient, mutex *sync
 				)
 				if err != nil {
 					// Recreate new clients slice.
-					fmt.Printf("Failed to write%v\n", client.Client.RemoteAddr())
+					fmt.Printf("Failed to write%v\n", client.Pipe.RemoteAddr())
 					*clients = client.RemoveFromClientsWithLock(*clients, mutex)
 					return
 				}

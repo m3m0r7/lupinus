@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strings"
 	"../util"
+	parent "../client"
 	"sync"
 )
 
@@ -31,14 +32,9 @@ const (
 	maxRetryToWriteCounter = 3
 )
 
-type ClientHeader struct {
-	Key string
-	Value string
-}
-
 type WebSocketClient struct {
-	Client net.Conn
-	Headers []ClientHeader
+	Pipe net.Conn
+	Headers []parent.ClientHeader
 	Handshake bool
 }
 
@@ -58,7 +54,7 @@ func (client *WebSocketClient) RemoveFromClients(clients []WebSocketClient) []We
 	return tmpClients
 }
 
-func (client *WebSocketClient) findHeaderByKey(key string) (*ClientHeader, error) {
+func (client *WebSocketClient) findHeaderByKey(key string) (*parent.ClientHeader, error) {
 	for _, clientHeader := range client.Headers {
 		if clientHeader.Key == key {
 			return &clientHeader, nil
@@ -69,7 +65,7 @@ func (client *WebSocketClient) findHeaderByKey(key string) (*ClientHeader, error
 
 func (client *WebSocketClient) Decode() ([]byte, int, error) {
 	kindByte := make([]byte, 2)
-	_, err := client.Client.Read(kindByte)
+	_, err := client.Pipe.Read(kindByte)
 	if err != nil {
 		return nil, -1, err
 	}
@@ -103,11 +99,11 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 	var length int
 	if receivedType == 126 {
 		readMore := make([]byte, 2)
-		_, err = client.Client.Read(readMore)
+		_, err = client.Pipe.Read(readMore)
 		length = int(binary.BigEndian.Uint16(readMore))
 	} else if receivedType == 127 {
 		readMore := make([]byte, 8)
-		_, err = client.Client.Read(readMore)
+		_, err = client.Pipe.Read(readMore)
 		length = int(binary.BigEndian.Uint64(readMore))
 	} else {
 		length = int(receivedType)
@@ -115,11 +111,11 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 
 	maskData := make([]byte, 4)
 	if maskFlag == 1 {
-		client.Client.Read(maskData)
+		client.Pipe.Read(maskData)
 	}
 
 	payload := make([]byte, length)
-	client.Client.Read(payload)
+	client.Pipe.Read(payload)
 
 	if maskFlag == 1 {
 		for i, char := range payload {
@@ -131,24 +127,7 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 }
 
 func (client *WebSocketClient) Write(data []byte) error {
-	realSize := len(data)
-	remaining := len(data)
-	read := 0
-	writeRetryCount := maxRetryToWriteCounter
-	for remaining > 0 {
-		n, err := client.Client.Write(data[read:realSize])
-		if err != nil {
-			if writeRetryCount == 0 {
-				// If write is missed, close connection
-				_ = client.Client.Close()
-				return err
-			}
-			writeRetryCount--
-		}
-		read += n
-		remaining -= n
-	}
-	return nil
+	return parent.Write(client.Pipe, data)
 }
 
 func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []byte {
@@ -184,44 +163,13 @@ func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []
 	return append(body, payload...)
 }
 
-func Upgrade(client net.Conn) (*WebSocketClient, error) {
-	headers := []ClientHeader{}
-	scanner := bufio.NewScanner(client)
-
-	remaining := maxHeadersLine
-	for scanner.Scan() {
-		if remaining == 0 {
-			return nil, errors.New("Requested headers are overflow.")
-		}
-		line := scanner.Text()
-		if line == "" {
-			break
-		}
-		result := strings.Split(line, ":")
-
-		// If not exists :, set key to zero value
-		clientHeader := ClientHeader{}
-		if len(result) <= 1 {
-			clientHeader = ClientHeader {
-				Value: strings.Trim(result[0], " "),
-			}
-		} else {
-			clientHeader = ClientHeader {
-				Key: strings.ToLower(strings.Trim(result[0], " ")),
-				Value: strings.Trim(result[1], " "),
-			}
-		}
-		headers = append(headers, clientHeader)
-		remaining--
-	}
-
+func Upgrade(conn net.Conn) (*WebSocketClient, error) {
 	wsClient := WebSocketClient{
-		Client: client,
-		Handshake: true,
-		Headers: headers,
+		Pipe: conn,
 	}
 
-	result, err := wsClient.findHeaderByKey("sec-websocket-key")
+	headers, _ := parent.GetAllHeaders(conn)
+	result, err := parent.FindHeaderByKey(headers, "sec-websocket-key")
 
 	if err != nil {
 		return nil, errors.New("Connected client is invalid.")
@@ -244,10 +192,13 @@ func Upgrade(client net.Conn) (*WebSocketClient, error) {
 		"Sec-WebSocket-Accept: " + wsAcceptHeader + "\n" +
 		"\n"
 
-	_, err = client.Write([]byte(sendHeaders))
+	_, err = conn.Write([]byte(sendHeaders))
 	if err != nil {
 		return nil, errors.New("Failed to write")
 	}
+
+	wsClient.Handshake = true
+	wsClient.Headers = headers
 
 	return &wsClient, nil
 }

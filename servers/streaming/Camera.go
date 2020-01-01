@@ -72,7 +72,7 @@ func Listen() {
 		for {
 			select {
 			case client := <-clientChannel:
-				fmt.Printf("Client connected %v\n", client.Client.RemoteAddr())
+				fmt.Printf("Client connected %v\n", client.Pipe.RemoteAddr())
 
 				// Send black screen
 				_ = client.Write(
