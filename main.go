@@ -1,20 +1,17 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/joho/godotenv"
 	"net"
 	"os"
 	"sync"
 	"./websocket"
-	"./util"
-	"./validator"
+	"./subscriber"
 )
 
 const (
-	CHUNK_SIZE = 8192
-	MAX_ILLEGAL_PACKET_COUNTER = 5
+	maxIllegalPacketCounter = 5
 )
 
 func main() {
@@ -82,11 +79,11 @@ func main() {
 							}
 
 							switch opcode {
-							case websocket.OPCODE_CLOSE:
+							case websocket.OpcodeClose:
 								_, err := client.Client.Write(
 									client.Encode(
 										result,
-										websocket.OPCODE_CLOSE,
+										websocket.OpcodeClose,
 										true,
 									),
 								)
@@ -97,11 +94,11 @@ func main() {
 								clients = client.RemoveFromClients(clients)
 								mutex.Unlock()
 								return
-							case websocket.OPCODE_PING:
+							case websocket.OpcodePing:
 								_, err := client.Client.Write(
 									client.Encode(
 										result,
-										websocket.OPCODE_PONG,
+										websocket.OpcodePong,
 										true,
 									),
 								)
@@ -123,82 +120,33 @@ func main() {
 			}
 		}()
 
-		authKey := os.Getenv("AUTH_KEY")
-		authKeySize := len(authKey)
-
 		for {
 			connection, _ := listener.Accept()
 
 			go func() {
 				fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
-				illegalPacketCounter := MAX_ILLEGAL_PACKET_COUNTER
+				illegalPacketCounter := maxIllegalPacketCounter
 				for {
 					if illegalPacketCounter == 0 {
 						fmt.Printf("connected from illegal connection.")
 						connection.Close()
 						return
 					}
-					readAuthKey := make([]byte, authKeySize)
-					receivedAuthKeySize, err := connection.Read(readAuthKey)
+
+					data, loops, err := subscriber.SubscribeImageStream(connection)
 					if err != nil {
-						fmt.Printf("err = %+v\n", err)
-
 						illegalPacketCounter--
 						continue
 					}
 
-					// Compare the received auth key and settled auth key.
-					if string(readAuthKey[:receivedAuthKeySize]) != authKey {
-						fmt.Printf("err = %+v\n", err)
-
-						illegalPacketCounter--
-						continue
-					}
-
-					// Receive frame size
-					frameSize := make([]byte, 4)
-					_, errReceivingFrameSize := connection.Read(frameSize)
-					if errReceivingFrameSize != nil {
-						fmt.Printf("err = %+v\n", err)
-
-						illegalPacketCounter--
-						continue
-					}
-
-					realFrameSize := binary.BigEndian.Uint32(frameSize)
-					realFrame := make([]byte, realFrameSize)
-
-					receivedImageDataSize, errReceivingRealFrame := connection.Read(realFrame)
-					if errReceivingRealFrame != nil {
-						fmt.Printf("err = %+v\n", err)
-
-						illegalPacketCounter--
-						continue
-					}
-
-					frameData := realFrame[:receivedImageDataSize]
-
-					if !validator.IsImageJpeg(frameData) {
-						illegalPacketCounter--
-						continue
-					}
-
-					illegalPacketCounter = MAX_ILLEGAL_PACKET_COUNTER
-
-					// Chunk the too long data.
-					data, loops := util.Chunk(
-						util.Byte2base64URI(
-							frameData,
-						),
-						CHUNK_SIZE,
-					)
+					illegalPacketCounter = maxIllegalPacketCounter
 
 					for _, client := range clients {
 						go func () {
 							for i := 0; i < loops; i++ {
-								opcode := websocket.OPCODE_BINARY
+								opcode := websocket.OpcodeBinary
 								if i > 0 {
-									opcode = websocket.OPCODE_FIN
+									opcode = websocket.OpcodeFin
 								}
 								_, err := client.Client.Write(
 									client.Encode(

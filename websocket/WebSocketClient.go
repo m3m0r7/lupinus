@@ -17,16 +17,16 @@ const ID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 // Operation codes.
 const (
-	OPCODE_FIN = 0x00
-	OPCODE_MESSAGE = 0x01
-	OPCODE_BINARY = 0x02
-	OPCODE_CLOSE = 0x08
-	OPCODE_PING = 0x09
-	OPCODE_PONG = 0x0A
+	OpcodeFin     = 0x00
+	OpcodeMessage = 0x01
+	OpcodeBinary  = 0x02
+	OpcodeClose   = 0x08
+	OpcodePing    = 0x09
+	OpcodePong    = 0x0A
 )
 
 const (
-	MAX_HEADERS_LINE = 128
+	maxHeadersLine = 128
 )
 
 type ClientHeader struct {
@@ -74,12 +74,12 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 	opcode := ((kindByte[0] << 4) & 0xff) >> 4
 
 	switch opcode {
-	case OPCODE_FIN:
-	case OPCODE_MESSAGE:
-	case OPCODE_BINARY:
-	case OPCODE_CLOSE:
-	case OPCODE_PING:
-	case OPCODE_PONG:
+	case OpcodeFin:
+	case OpcodeMessage:
+	case OpcodeBinary:
+	case OpcodeClose:
+	case OpcodePing:
+	case OpcodePong:
 		// nothing to do
 		break
 	default:
@@ -159,7 +159,7 @@ func Upgrade(client net.Conn) (*WebSocketClient, error) {
 	headers := []ClientHeader{}
 	scanner := bufio.NewScanner(client)
 
-	remaining := MAX_HEADERS_LINE
+	remaining := maxHeadersLine
 	for scanner.Scan() {
 		if remaining == 0 {
 			return nil, errors.New("Requested headers are overflow.")
