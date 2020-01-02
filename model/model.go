@@ -1,8 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"../util"
+	"os"
 )
 
 type Model struct {
@@ -10,8 +10,6 @@ type Model struct {
 }
 
 func (model *Model) Find(username string, password string) *map[string]interface{} {
-	fmt.Printf("UserName: %s\n", username)
-	fmt.Printf("Password: %s\n", password)
 
 	ownProperty := util.GetFromMap(username, model.Records)
 	if ownProperty == nil {
@@ -26,7 +24,7 @@ func (model *Model) Find(username string, password string) *map[string]interface
 	}
 
 	// If password is correct return the user object
-	if path["password"] == password {
+	if path["password"] == util.Sha512WithSalt(password, os.Getenv("SALT_KEY")) {
 		return &path
 	}
 

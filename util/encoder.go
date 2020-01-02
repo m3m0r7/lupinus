@@ -1,6 +1,10 @@
 package util
 
-import "encoding/base64"
+import (
+	"crypto/sha512"
+	"encoding/base64"
+	"fmt"
+)
 
 func Byte2base64URI(data []byte) []byte {
 	return []byte(
@@ -8,4 +12,12 @@ func Byte2base64URI(data []byte) []byte {
 			data,
 		),
 	)
+}
+
+func Sha512(value string) string {
+	return fmt.Sprintf("%x", sha512.Sum512([]byte(value)))
+}
+
+func Sha512WithSalt(value string, salt string) string {
+	return Sha512(salt + value)
 }

@@ -1,21 +1,13 @@
 package controller
 
 import (
-	"../../../../util"
 	"../../../../model"
+	"../../../../util"
 	"../../../http"
 	"encoding/json"
-	"fmt"
 )
 
 func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
-	body := http.HttpBody {
-		Payload: map[string]interface{}{
-			"code": -1,
-			"message": "youkoso",
-		},
-	}
-
 	// Do not allowed received method.
 	if clientMeta.Method != "POST" {
 		return nil, nil
@@ -41,9 +33,25 @@ func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		password.(string),
 	)
 
-	fmt.Printf("%v", userData)
+	// Not found
+	if userData == nil {
+		return &http.HttpBody {
+			Payload: map[string]interface{}{
+				"code": 100,
+				"message": "Failed to authorize",
+			},
+		},
+		&http.HttpHeader{
+			Status: 401,
+		}
+	}
 
-	return &body, &http.HttpHeader{
+	return &http.HttpBody {
+		Payload: map[string]interface{}{
+			"message": "Sign-in was succeeded",
+		},
+	},
+	&http.HttpHeader{
 		Status: 404,
 	}
 }
