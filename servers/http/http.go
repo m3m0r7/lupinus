@@ -22,6 +22,7 @@ type HttpClientMeta struct {
 	Headers []ClientHeader
 	Path url.URL
 	Payload []byte
+	Cookies []Cookie
 }
 
 type HttpBody struct {

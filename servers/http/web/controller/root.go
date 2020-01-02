@@ -1,6 +1,10 @@
 package controller
 
-import "../../../http"
+import (
+	"../../../http"
+	"fmt"
+	"os"
+)
 
 func RequestRoot(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHeader) {
 	body := http.HttpBody{
@@ -8,6 +12,8 @@ func RequestRoot(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHea
 			"message": "(=^・_・^=)",
 		},
 	}
+
+	fmt.Printf("%v", http.FindCookie(os.Getenv("SESSION_ID"), clientMeta.Cookies))
 
 	return &body, &http.HttpHeader{}
 }

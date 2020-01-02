@@ -32,3 +32,12 @@ func AddCookie(cookie Cookie) {
 func GetCookies() []string {
 	return cookies
 }
+
+func FindCookie(key string, cookies []Cookie) *Cookie {
+	for _, cookie := range cookies {
+		if cookie.Name == key {
+			return &cookie
+		}
+	}
+	return nil
+}

@@ -39,6 +39,25 @@ func Listen() {
 				return
 			}
 
+			// Set cookies
+			cookie, noCookie := client.FindHeaderByKey(headers, "cookie")
+			cookies := []http.Cookie{}
+			if noCookie == nil {
+				for _, item := range strings.Split(cookie.Value, ";") {
+					pair := strings.Split(item, "=")
+					if len(pair) != 2 {
+						continue
+					}
+					cookies = append(
+						cookies,
+						http.Cookie{
+							Name: strings.TrimSpace(pair[0]),
+							Value: strings.TrimSpace(pair[1]),
+						},
+					)
+				}
+			}
+
 			status := util.SplitWithFiltered(result.Value, " ")
 			if len(status) != 3 {
 				return
@@ -74,6 +93,7 @@ func Listen() {
 				Path: *urlObject,
 				Protocol: protocol,
 				Payload: requestBody,
+				Cookies: cookies,
 			}
 
 			responseBody, responseHeader, _ := Connect(clientMeta)
