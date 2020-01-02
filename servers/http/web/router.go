@@ -17,6 +17,21 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 		case "/api/v1/signin":
 			responseBody, responseHeader = controller.RequestLogin(clientMeta)
 			break
+		case "/api/v1/user":
+			// TODO: implement here
+			break
+		case "/image":
+			// TODO: implement here
+			break
+		case "/info":
+			// TODO: implement here
+			break
+		case "/favorite":
+			// TODO: implement here
+			break
+		case "/capture":
+			// TODO: implement here
+			break
 		case "/favicon.ico":
 			return nil, nil, nil
 		default:
