@@ -120,7 +120,11 @@ func Listen() {
 				clientMeta.Protocol + " " + statusWithName + "\n" +
 				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
 				"Content-Type: application/json\n" +
-				"Connection: close\n"
+				"Connection: close\n" +
+				// for Preflight request
+				"Access-Control-Allow-Method: *" +
+				"Access-Control-Allow-Headers: content-type, x-auth-key" +
+				""
 
 			// Set cookies
 			for _, cookie := range http.GetCookies() {
