@@ -100,8 +100,14 @@ func Listen() {
 				clientMeta.Protocol + " " + statusWithName + "\n" +
 				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
 				"Content-Type: application/json\n" +
-				"Connection: close\n" +
-				"\n" +
+				"Connection: close\n"
+
+			// Set cookies
+			for _, cookie := range http.GetCookies() {
+				writeData += "Set-Cookie: " + cookie + "\n"
+			}
+
+			writeData += "\n" +
 				stringifiedJSON
 
 			connection.Write([]byte(writeData))

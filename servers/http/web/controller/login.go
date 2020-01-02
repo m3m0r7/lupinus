@@ -46,6 +46,10 @@ func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 	}
 
+	// Create session
+	session := http.CreateSession()
+	session.Write("id", username.(string))
+
 	return &http.HttpBody {
 		Payload: map[string]interface{}{
 			"message": "Sign-in was succeeded",

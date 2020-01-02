@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"../config"
 )
 
 var initializedInstance *Model = nil
@@ -13,8 +14,7 @@ func InitUser() *Model {
 		return initializedInstance
 	}
 
-	dir, _ := os.Getwd()
-	userJsonPathHandler, _ := os.Open(dir + "/users.json")
+	userJsonPathHandler, _ := os.Open(config.GetRootDir() + "/users.json")
 	userData, _ := ioutil.ReadAll(userJsonPathHandler)
 	jsonData := map[string]interface{}{}
 	err := json.Unmarshal(userData, &jsonData)

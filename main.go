@@ -1,10 +1,10 @@
 package main
 
 import (
+	"./servers/http/web"
+	"./servers/streaming"
 	"fmt"
 	"github.com/joho/godotenv"
-	"./servers/streaming"
-	"./servers/http/web"
 	"sync"
 )
 
