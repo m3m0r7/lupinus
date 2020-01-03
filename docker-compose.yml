@@ -1,0 +1,7 @@
+version: "3"
+services:
+  redis:
+    build: infra/redis
+    container_name: redis
+    ports:
+      - 16379:6379
