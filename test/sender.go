@@ -55,7 +55,7 @@ func main() {
 				fmt.Printf("Failed to write %d\n", counter)
 			}
 			counter++
-			time.Sleep(5 * time.Second)
+			//time.Sleep(5 * time.Second)
 		}
 	}
 }

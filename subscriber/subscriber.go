@@ -12,6 +12,7 @@ import (
 
 const (
 	chunkSize = 8192
+	protectedImageSize = 1024 * 1000 * 10
 )
 
 var (
@@ -22,6 +23,7 @@ var (
 func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	readAuthKey := make([]byte, authKeySize)
 	receivedAuthKeySize, err := connection.Read(readAuthKey)
+	fmt.Printf("auth key = %v\n", receivedAuthKeySize)
 	if err != nil {
 		return nil, nil, -1, err
 	}
@@ -34,17 +36,23 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	// Receive frame size
 	frameSize := make([]byte, 4)
 	_, errReceivingFrameSize := connection.Read(frameSize)
+
 	if errReceivingFrameSize != nil {
 		return nil, nil, -1, errReceivingFrameSize
 	}
 
-	realFrameSize := binary.BigEndian.Uint32(frameSize)
+	realFrameSize := int(binary.BigEndian.Uint32(frameSize))
+
+	if realFrameSize < 0 || protectedImageSize < realFrameSize {
+		return nil, nil, -1, errors.New("protected memory allocation.")
+	}
+
 	realFrame := []byte{}
 
 	// Remaining calculator
-	remaining := int(realFrameSize)
+	remaining := realFrameSize
 	for remaining > 0 {
-		tmpRead := make([]byte, realFrameSize)
+		tmpRead := make([]byte, remaining)
 		receivedImageDataSize, errReceivingRealFrame := connection.Read(tmpRead)
 		realFrame = append(realFrame, tmpRead...)
 		if errReceivingRealFrame != nil {
