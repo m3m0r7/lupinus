@@ -96,6 +96,18 @@ func Listen() {
 				Cookies: cookies,
 			}
 
+			if clientMeta.Method == "OPTIONS" {
+				writeData := "" +
+					clientMeta.Protocol + " " + util.GetStatusCodeWithNameByCode(200) + "\n" +
+					"Content-Length: 0\n" +
+					"Connection: close\n" +
+					"Access-Control-Allow-Method: *\n" +
+					"Access-Control-Allow-Headers: content-type, x-auth-key\n" +
+					"\n"
+				clientMeta.Pipe.Write([]byte(writeData))
+				return
+			}
+
 			responseBody, responseHeader, _ := Connect(clientMeta)
 
 			// If which is invalid processing, connection to shutdown.
