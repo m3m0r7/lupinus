@@ -125,7 +125,7 @@ func ListenCameraStreaming() {
 					return
 				}
 
-				frameData, data, loops, err := subscriber.SubscribeImageStream(connection)
+				frameData, data, loops, err := subscriber.SubscribeImageStream(&connection)
 
 				// proceed favorite procedures
 				share.ProceedProcedure(

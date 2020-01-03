@@ -16,13 +16,12 @@ const (
 	protectedImageSize = 1024 * 1000 * 10
 )
 
-func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
+func SubscribeImageStream(connection *net.Conn) ([]byte, [][]byte, int, error) {
 	authKey := os.Getenv("AUTH_KEY")
 	authKeySize := len(authKey)
 
 	readAuthKey, err := util.ExpectToRead(connection, authKeySize)
 	if err != nil {
-		fmt.Printf("")
 		return nil, nil, -1, err
 	}
 
