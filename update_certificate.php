@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-$env = Dotenv\Dotenv::create(__DIR__);
+$env = Dotenv\Dotenv::createImmutable(__DIR__);
 $env->load();
 
 $based_directory = $_ENV['LILY_CERTIFICATE_BASED_DIRECTORY'] ?? null;
