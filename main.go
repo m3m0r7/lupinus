@@ -18,7 +18,7 @@ func main() {
 	wg.Add(1)
 
 	// Start listen servers
-	go camera.Listen()
+	go streaming.ListenCameraStreaming()
 	go web.Listen()
 
 	wg.Wait()

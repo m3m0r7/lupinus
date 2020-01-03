@@ -1,5 +1,6 @@
 package share
 
+
 type Procedure struct {
 	Callback func([]byte)
 }

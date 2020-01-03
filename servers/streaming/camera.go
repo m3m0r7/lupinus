@@ -1,4 +1,4 @@
-package camera
+package streaming
 
 import (
 	"lupinus/helper"
@@ -26,7 +26,7 @@ const (
 var UpdateTime = time.Now().Unix()
 var NextUpdateTime = time.Now().Unix()
 
-func Listen() {
+func ListenCameraStreaming() {
 	mutex := sync.Mutex{}
 	clients := []websocket.WebSocketClient{}
 	clientChannel := make(chan websocket.WebSocketClient)
