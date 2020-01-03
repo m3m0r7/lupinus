@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"../../../http"
-	"../behavior"
+	"lupinus/servers/http/web/behavior"
+	"lupinus/servers/http"
 )
 
 func RequestUser(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {

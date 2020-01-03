@@ -1,8 +1,8 @@
 package subscriber
 
 import (
-	"../util"
-	"../validator"
+	"lupinus/util"
+	"lupinus/validator"
 	"encoding/binary"
 	"errors"
 	"net"

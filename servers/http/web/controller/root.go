@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"../../../http"
+	"lupinus/servers/http"
 )
 
 func RequestRoot(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHeader) {

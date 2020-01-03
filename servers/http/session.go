@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"../../util"
-	"../../config"
+	"lupinus/util"
+	"lupinus/config"
 )
 
 var sessionDir = config.GetRootDir() + "/storage/session/"
@@ -84,7 +84,7 @@ func LoadSessionFromCookie(cookies []Cookie) *Session {
 	handle.Close()
 
 	return &Session{
-		SessionId: sessionId,
+		SessionId: data["id"].(string),
 		Data: data,
 	}
 }

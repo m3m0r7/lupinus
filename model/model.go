@@ -1,7 +1,7 @@
 package model
 
 import (
-	"../util"
+	"lupinus/util"
 	"os"
 )
 

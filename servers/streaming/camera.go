@@ -1,6 +1,9 @@
 package camera
 
 import (
+	"lupinus/helper"
+	"lupinus/subscriber"
+	"lupinus/websocket"
 	"bytes"
 	"fmt"
 	"image"
@@ -8,10 +11,7 @@ import (
 	"net"
 	"os"
 	"sync"
-	"../../websocket"
-	"../../subscriber"
 	"time"
-	"../../helper"
 )
 
 const (

@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"../../../../model"
-	"../../../../util"
-	"../../../http"
+	"lupinus/model"
+	"lupinus/util"
+	"lupinus/servers/http"
 	"encoding/json"
 )
 

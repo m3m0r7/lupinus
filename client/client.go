@@ -1,8 +1,8 @@
 package client
 
 import (
-	"../servers/http"
-	"../util"
+	"lupinus/servers/http"
+	"lupinus/util"
 	"errors"
 	"net"
 	"strings"

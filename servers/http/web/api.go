@@ -1,9 +1,9 @@
 package web
 
 import (
-	"../../../client"
-	"../../../util"
-	"../../http"
+	"lupinus/client"
+	"lupinus/util"
+	"lupinus/servers/http"
 	"encoding/json"
 	"fmt"
 	"net"

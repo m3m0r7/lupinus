@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"../config"
+	"lupinus/config"
 )
 
 var initializedInstance *Model = nil

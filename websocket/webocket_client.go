@@ -7,9 +7,9 @@ import (
 	"errors"
 	"net"
 	"reflect"
-	"../util"
-	"../servers/http"
-	parent "../client"
+	"lupinus/util"
+	"lupinus/servers/http"
+	parent "lupinus/client"
 	"sync"
 )
 

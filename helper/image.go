@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"../config"
+	"lupinus/config"
 	"encoding/json"
 	"os"
 	"time"

@@ -1,8 +1,6 @@
 package behavior
 
-import (
-	"../../../http"
-)
+import "lupinus/servers/http"
 
 func GetSignInInfo(clientMeta http.HttpClientMeta) *http.Session {
 	session := http.LoadSessionFromCookie(clientMeta.Cookies)

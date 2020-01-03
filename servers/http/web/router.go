@@ -1,8 +1,8 @@
 package web
 
 import (
-	"../../http"
-	"./controller"
+	"lupinus/servers/http"
+	"lupinus/servers/http/web/controller"
 )
 
 func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, error) {
