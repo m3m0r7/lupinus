@@ -20,7 +20,7 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 		return nil, nil
 	}
 
-	username := util.GetFromMap("username", jsonData)
+	username := util.GetFromMap("id", jsonData)
 	password := util.GetFromMap("password", jsonData)
 
 	if username == nil || password == nil {
