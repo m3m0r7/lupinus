@@ -4,6 +4,7 @@ import (
 	"lupinus/config"
 	"lupinus/servers/http"
 	"lupinus/servers/http/web/behavior"
+	"lupinus/helper"
 	"lupinus/share"
 	"path/filepath"
 	"strconv"
@@ -49,7 +50,6 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 		config.GetRootDir() + "/storage/" + session.Data["id"].(string) + "/*/*.jpg",
 	)
 
-
 	dates := map[string]interface{}{}
 
 	for _, file := range files {
@@ -88,11 +88,21 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 }
 
 func requestFavoriteByPost(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
-	share.AddProcedure(share.Procedure{
-		Callback: func(data string) {
+	share.AddProcedure(
+		"favorite",
+		share.Procedure{
+			Callback: func(data []byte) {
+				session := behavior.GetSignInInfo(clientMeta)
+				id := session.Data["id"].(string)
+				path := id + "/" + time.Now().Format("20060102") + "/" + strconv.Itoa(int(time.Now().Unix())) + ".jpg"
 
+				helper.CreateStaticImage(
+					data,
+					path,
+				)
+			},
 		},
-	})
+	)
 	return &http.HttpBody{
 		Payload: map[string]interface{}{
 			"status": 200,

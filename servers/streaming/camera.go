@@ -3,7 +3,9 @@ package camera
 import (
 	"lupinus/helper"
 	"lupinus/subscriber"
+	"lupinus/util"
 	"lupinus/websocket"
+	"lupinus/share"
 	"bytes"
 	"fmt"
 	"image"
@@ -16,8 +18,13 @@ import (
 
 const (
 	maxIllegalPacketCounter = 5
-	updateStaticImageInterval = 30
+
+	// Publics
+	UpdateStaticImageInterval = 30
 )
+
+var UpdateTime = time.Now().Unix()
+var NextUpdateTime = time.Now().Unix()
 
 func Listen() {
 	mutex := sync.Mutex{}
@@ -80,8 +87,8 @@ func Listen() {
 				// Send black screen
 				_ = client.Write(
 					client.Encode(
-						buffer.Bytes(),
-						websocket.OpcodeBinary,
+						util.Byte2base64URI(buffer.Bytes()),
+						websocket.OpcodeMessage,
 						true,
 					),
 				)
@@ -110,7 +117,6 @@ func Listen() {
 		go func() {
 			fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
 			illegalPacketCounter := maxIllegalPacketCounter
-			nextUpdateTime := time.Now().Unix()
 			for {
 				if illegalPacketCounter == 0 {
 					fmt.Printf("Respond invalid frame data. retry to listen.\n")
@@ -120,9 +126,16 @@ func Listen() {
 
 				frameData, data, loops, err := subscriber.SubscribeImageStream(connection)
 
+				// proceed favorite procedures
+				share.ProceedProcedure(
+					"favorite",
+					frameData,
+				)
+
 				currentTime := time.Now().Unix()
-				if nextUpdateTime < currentTime {
-					nextUpdateTime = currentTime + updateStaticImageInterval
+				if NextUpdateTime < currentTime {
+					UpdateTime = currentTime
+					NextUpdateTime = currentTime + UpdateStaticImageInterval
 
 					// create image
 					helper.CreateStaticImage(frameData, "record/image.jpg")

@@ -1,20 +1,23 @@
 package share
 
 type Procedure struct {
-	Callback func(string)
+	Callback func([]byte)
 }
 
-var procedures = []Procedure{}
+var procedures = map[string]interface{}{}
 
-func AddProcedure(procedure Procedure) {
-	procedures = append(procedures, procedure)
+func AddProcedure(key string, procedure Procedure) {
+	if _, ok := procedures[key]; !ok {
+		procedures[key] = []Procedure{}
+	}
+	procedures[key] = append(procedures[key].([]Procedure), procedure)
 }
 
-func ProceedProcedure(data string) {
-	for _, procedure := range procedures {
+func ProceedProcedure(key string, data []byte) {
+	for _, procedure := range procedures[key].([]Procedure) {
 		procedure.Callback(data)
 	}
 
 	// To empty
-	procedures = []Procedure{}
+	procedures[key] = []Procedure{}
 }
