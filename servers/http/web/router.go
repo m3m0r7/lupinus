@@ -13,7 +13,8 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 	case "/":
 		responseBody, responseHeader = controller.RequestRoot(clientMeta)
 		break
-	case "/api/v1/signin":
+	case "/api/v1/login",
+		 "/api/v1/signin":
 		responseBody, responseHeader = controller.RequestSignin(clientMeta)
 		break
 	case "/api/v1/user":
