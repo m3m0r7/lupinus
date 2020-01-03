@@ -116,48 +116,50 @@ func ListenCameraStreaming() {
 				continue
 			}
 
-			fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
-			illegalPacketCounter := maxIllegalPacketCounter
-			for {
-				if illegalPacketCounter == 0 {
-					fmt.Printf("Respond invalid frame data. retry to listen.\n")
-					connection.Close()
-					return
+			go func() {
+				fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
+				illegalPacketCounter := maxIllegalPacketCounter
+				for {
+					if illegalPacketCounter == 0 {
+						fmt.Printf("Respond invalid frame data. retry to listen.\n")
+						connection.Close()
+						return
+					}
+
+					frameData, data, loops, err := subscriber.SubscribeImageStream(&connection)
+
+					// proceed favorite procedures
+					share.ProceedProcedure(
+						"favorite",
+						frameData,
+					)
+
+					currentTime := time.Now().Unix()
+					if NextUpdateTime < currentTime {
+						UpdateTime = currentTime
+						NextUpdateTime = currentTime + UpdateStaticImageInterval
+
+						// create image
+						helper.CreateStaticImage(frameData, "record/image.jpg")
+					}
+
+					if err != nil && err != io.EOF {
+						fmt.Printf("err = %v\n", err)
+						illegalPacketCounter--
+						continue
+					}
+					illegalPacketCounter = maxIllegalPacketCounter
+
+					// Broadcast to connected all clients.
+					websocket.Broadcast(
+						&data,
+						loops,
+						&clients,
+						&mutex,
+					)
+
 				}
-
-				frameData, data, loops, err := subscriber.SubscribeImageStream(&connection)
-
-				// proceed favorite procedures
-				share.ProceedProcedure(
-					"favorite",
-					frameData,
-				)
-
-				currentTime := time.Now().Unix()
-				if NextUpdateTime < currentTime {
-					UpdateTime = currentTime
-					NextUpdateTime = currentTime + UpdateStaticImageInterval
-
-					// create image
-					helper.CreateStaticImage(frameData, "record/image.jpg")
-				}
-
-				if err != nil && err != io.EOF {
-					fmt.Printf("err = %v\n", err)
-					illegalPacketCounter--
-					continue
-				}
-				illegalPacketCounter = maxIllegalPacketCounter
-
-				// Broadcast to connected all clients.
-				websocket.Broadcast(
-					&data,
-					loops,
-					&clients,
-					&mutex,
-				)
-
-			}
+			}()
 		}
 	}()
 }
