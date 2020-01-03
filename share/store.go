@@ -15,6 +15,9 @@ func AddProcedure(key string, procedure Procedure) {
 }
 
 func ProceedProcedure(key string, data []byte) {
+	if _, ok := procedures[key]; !ok {
+		return
+	}
 	for _, procedure := range procedures[key].([]Procedure) {
 		procedure.Callback(data)
 	}
