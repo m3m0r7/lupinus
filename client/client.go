@@ -60,17 +60,17 @@ func GetAllHeaders(conn *net.Conn) ([]http.ClientHeader, error) {
 	return headers, nil
 }
 
-func Write(conn net.Conn, data []byte) error {
+func Write(conn *net.Conn, data []byte) error {
 	realSize := len(data)
 	remaining := len(data)
 	read := 0
 	writeRetryCount := maxRetryToWriteCounter
 	for remaining > 0 {
-		n, err := conn.Write(data[read:realSize])
+		n, err := (*conn).Write(data[read:realSize])
 		if err != nil {
 			if writeRetryCount == 0 {
 				// If write is missed, close connection
-				_ = conn.Close()
+				_ = (*conn).Close()
 				return err
 			}
 			writeRetryCount--

@@ -17,7 +17,7 @@ type Client struct {
 
 type HttpClientMeta struct {
 	Protocol string
-	Pipe net.Conn
+	Pipe *net.Conn
 	Method string
 	Headers []ClientHeader
 	Path url.URL

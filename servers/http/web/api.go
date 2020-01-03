@@ -88,7 +88,7 @@ func Listen() {
 			// TODO: Validator
 
 			clientMeta := http.HttpClientMeta{
-				Pipe: connection,
+				Pipe: &connection,
 				Method: strings.ToUpper(method),
 				Path: *urlObject,
 				Protocol: protocol,
@@ -119,7 +119,7 @@ func Listen() {
 				for _, cookie := range http.GetCookies() {
 					writeData += "Set-Cookie: " + cookie + "\n"
 				}
-				clientMeta.Pipe.Write([]byte(writeData))
+				(*clientMeta.Pipe).Write([]byte(writeData))
 				return
 			}
 
@@ -142,7 +142,7 @@ func Listen() {
 				for _, cookie := range http.GetCookies() {
 					writeData += "Set-Cookie: " + cookie + "\n"
 				}
-				clientMeta.Pipe.Write([]byte(writeData))
+				(*clientMeta.Pipe).Write([]byte(writeData))
 				return
 			}
 

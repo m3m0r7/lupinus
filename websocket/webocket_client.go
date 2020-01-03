@@ -127,7 +127,7 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 }
 
 func (client *WebSocketClient) Write(data []byte) error {
-	return parent.Write(client.Pipe, data)
+	return parent.Write(&client.Pipe, data)
 }
 
 func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []byte {
