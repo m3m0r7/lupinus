@@ -1,12 +1,14 @@
 package controller
 
 import (
-	"fmt"
 	"lupinus/config"
 	"lupinus/servers/http"
 	"lupinus/servers/http/web/behavior"
 	"lupinus/share"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -47,23 +49,37 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 		config.GetRootDir() + "/storage/" + session.Data["id"].(string) + "/*/*.jpg",
 	)
 
+
+	dates := map[string]interface{}{}
+
 	for _, file := range files {
-		fmt.Printf("%v\n", file)
+		unixTime, _ := strconv.Atoi(
+			strings.Replace(
+				filepath.Base(file),
+				".jpg",
+				"",
+				-1),
+		)
+
+		date := time.Unix(int64(unixTime), 0)
+		id := date.Format("20060102")
+
+		type dateObject = []map[string]interface{}
+		if _, ok := dates[id]; !ok {
+			dates[id] = dateObject{}
+		}
+		dates[id] = append(
+			dates[id].(dateObject),
+			map[string]interface{}{
+				"src": "image?id=" + strconv.Itoa(unixTime),
+			},
+		)
 	}
 
 	return &http.HttpBody{
 		Payload: map[string]interface{}{
 			"status": 200,
-			"dates": map[string]interface{}{
-				"20190105": []map[string]interface{}{
-					{
-						"src": "hoghoge",
-					},
-					{
-						"src": "hoghoge",
-					},
-				},
-			},
+			"dates": dates,
 		},
 	},
 	&http.HttpHeader{

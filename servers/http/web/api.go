@@ -122,8 +122,8 @@ func Listen() {
 				"Content-Type: application/json\n" +
 				"Connection: close\n" +
 				// for Preflight request
-				"Access-Control-Allow-Method: *" +
-				"Access-Control-Allow-Headers: content-type, x-auth-key" +
+				"Access-Control-Allow-Method: *\n" +
+				"Access-Control-Allow-Headers: content-type, x-auth-key\n" +
 				""
 
 			// Set cookies

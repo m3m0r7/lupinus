@@ -56,6 +56,6 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 		},
 	},
 	&http.HttpHeader{
-		Status: 404,
+		Status: 200,
 	}
 }
