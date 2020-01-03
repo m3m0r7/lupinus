@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 )
 
-func RequestLogin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
+func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	// Do not allowed received method.
 	if clientMeta.Method != "POST" {
 		return nil, nil

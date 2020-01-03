@@ -15,18 +15,18 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 			responseBody, responseHeader = controller.RequestRoot(clientMeta)
 			break
 		case "/api/v1/signin":
-			responseBody, responseHeader = controller.RequestLogin(clientMeta)
+			responseBody, responseHeader = controller.RequestSignin(clientMeta)
 			break
 		case "/api/v1/user":
+			responseBody, responseHeader = controller.RequestUser(clientMeta)
+			break
+		case "/api/v1/info":
+			responseBody, responseHeader = controller.RequestInfo(clientMeta)
+			break
+		case "/api/v1/favorite":
 			// TODO: implement here
 			break
 		case "/image":
-			// TODO: implement here
-			break
-		case "/info":
-			// TODO: implement here
-			break
-		case "/favorite":
 			// TODO: implement here
 			break
 		case "/capture":

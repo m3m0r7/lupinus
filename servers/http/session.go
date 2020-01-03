@@ -65,8 +65,13 @@ func (session *Session) Write(key string, value string) {
 	handle.Close()
 }
 
-func LoadSession(sessionId string) *Session {
-	handle, err := os.OpenFile(sessionDir + sessionId, os.O_RDWR, 0644)
+func LoadSessionFromCookie(cookies []Cookie) *Session {
+	cookie := FindCookie(os.Getenv("SESSION_ID"), cookies)
+	if cookie == nil {
+		return nil
+	}
+
+	handle, err := os.OpenFile(sessionDir + cookie.Value, os.O_RDWR, 0644)
 	if err != nil {
 		return nil
 	}
