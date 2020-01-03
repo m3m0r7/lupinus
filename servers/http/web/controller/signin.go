@@ -36,7 +36,7 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 	// Not found
 	if userData == nil {
 		return &http.HttpBody {
-			Payload: map[string]interface{}{
+			Payload: http.Payload{
 				"code": 100,
 				"message": "Failed to authorize",
 			},
@@ -51,7 +51,7 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 	session.Write("id", username.(string))
 
 	return &http.HttpBody {
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"message": "Sign-in was succeeded",
 		},
 	},

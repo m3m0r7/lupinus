@@ -11,7 +11,7 @@ func RequestUser(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHead
 	if session == nil {
 		// Not exists a session
 		return &http.HttpBody{
-			Payload: map[string]interface{}{
+			Payload: http.Payload{
 				"message": "Unauthorized",
 			},
 		},
@@ -21,7 +21,7 @@ func RequestUser(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHead
 	}
 
 	return &http.HttpBody{
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"user": session.Data,
 		},
 	},

@@ -11,7 +11,7 @@ func RequestInfo(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHea
 	if session == nil {
 		// Not exists a session
 		return &http.HttpBody{
-			Payload: map[string]interface{}{
+			Payload: http.Payload{
 				"message": "Unauthorized",
 			},
 		},
@@ -26,7 +26,7 @@ func RequestInfo(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHea
 	cpuTemperature := 0.0
 
 	return &http.HttpBody{
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"info": map[string]interface{}{
 				"temperature": temperature,
 				"humidity": humidity,

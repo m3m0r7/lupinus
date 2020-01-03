@@ -46,7 +46,7 @@ func RequestCapture(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpH
 	}
 
 	return &http.HttpBody{
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"image": util.Byte2base64URI(capturedImage),
 			"updated_at": camera.UpdateTime,
 			"update_interval": camera.UpdateStaticImageInterval,

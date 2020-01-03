@@ -38,3 +38,5 @@ type ErrorMessage struct {
 	Code int
 	Message string
 }
+
+type Payload map[string]interface{}

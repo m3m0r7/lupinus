@@ -18,7 +18,7 @@ func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.Http
 	if session == nil {
 		// Not exists a session
 		return &http.HttpBody{
-				Payload: map[string]interface{}{
+				Payload: http.Payload{
 					"message": "Unauthorized",
 				},
 			},
@@ -77,7 +77,7 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 	}
 
 	return &http.HttpBody{
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"status": 200,
 			"dates": dates,
 		},
@@ -104,7 +104,7 @@ func requestFavoriteByPost(clientMeta http.HttpClientMeta) (*http.HttpBody, *htt
 		},
 	)
 	return &http.HttpBody{
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"status": 200,
 		},
 	},

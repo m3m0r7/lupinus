@@ -4,7 +4,7 @@ import "lupinus/servers/http"
 
 func RequestFallback(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	body := http.HttpBody {
-		Payload: map[string]interface{}{
+		Payload: http.Payload{
 			"code": -1,
 			"message": "No data",
 		},
