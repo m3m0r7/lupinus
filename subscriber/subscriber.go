@@ -20,20 +20,18 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	authKey := os.Getenv("AUTH_KEY")
 	authKeySize := len(authKey)
 
-	readAuthKey := make([]byte, authKeySize)
-	receivedAuthKeySize, err := connection.Read(readAuthKey)
+	readAuthKey, err := util.ExpectToRead(connection, authKeySize)
 	if err != nil {
 		return nil, nil, -1, err
 	}
 
 	// Compare the received auth key and settled auth key.
-	if string(readAuthKey[:receivedAuthKeySize]) != authKey {
+	if string(readAuthKey) != authKey {
 		return nil, nil, -1, errors.New("Invalid auth key.")
 	}
 
 	// Receive frame size
-	frameSize := make([]byte, 4)
-	_, errReceivingFrameSize := connection.Read(frameSize)
+	frameSize, errReceivingFrameSize := util.ExpectToRead(connection, 4)
 
 	if errReceivingFrameSize != nil {
 		return nil, nil, -1, errReceivingFrameSize
@@ -47,22 +45,13 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 		)
 	}
 
-	realFrame := []byte{}
+	realFrame, errReceivingRealFrame := util.ExpectToRead(connection, realFrameSize)
 
-	// Remaining calculator
-	remaining := realFrameSize
-	for remaining > 0 {
-		tmpRead := make([]byte, remaining)
-		receivedImageDataSize, errReceivingRealFrame := connection.Read(tmpRead)
-		realFrame = append(realFrame, tmpRead...)
-		if errReceivingRealFrame != nil {
-			return nil, nil, -1, errReceivingRealFrame
-		}
-
-		remaining -= receivedImageDataSize
+	if errReceivingRealFrame != nil {
+		return nil, nil, -1, errors.New("Error!")
 	}
 
-	frameData := realFrame[:realFrameSize]
+	frameData := realFrame
 
 	if !validator.IsImageJpeg(frameData) {
 		fmt.Printf("image = %d\n", realFrameSize)
