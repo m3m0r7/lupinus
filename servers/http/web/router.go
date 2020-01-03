@@ -24,7 +24,7 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 			responseBody, responseHeader = controller.RequestInfo(clientMeta)
 			break
 		case "/api/v1/favorite":
-			// TODO: implement here
+			responseBody, responseHeader = controller.RequestFavorite(clientMeta)
 			break
 		case "/image":
 			// TODO: implement here
