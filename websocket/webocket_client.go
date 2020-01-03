@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"net"
 	"reflect"
 	"lupinus/util"
@@ -196,6 +197,7 @@ func Upgrade(conn *net.Conn) (*WebSocketClient, error) {
 
 	_, err = (*conn).Write([]byte(sendHeaders))
 	if err != nil {
+		fmt.Printf("Failed to write: err = %v\n", err)
 		return nil, errors.New("Failed to write")
 	}
 

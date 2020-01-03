@@ -43,10 +43,10 @@ func main() {
 			fmt.Printf("Size: %d\n", len(exampleImageBuffer))
 
 			buffer := []byte{}
+			buffer = append(buffer, []byte(os.Getenv("AUTH_KEY"))...)
 			frameBuffer := make([]byte, 4)
-			binary.BigEndian.PutUint32(frameBuffer, uint32(len(exampleImageBuffer)))
+			binary.LittleEndian.PutUint32(frameBuffer, uint32(len(exampleImageBuffer)))
 
-			buffer = append(buffer, os.Getenv("AUTH_KEY")...)
 			buffer = append(buffer, frameBuffer...)
 			buffer = append(buffer, exampleImageBuffer...)
 
@@ -55,7 +55,7 @@ func main() {
 				fmt.Printf("Failed to write %d\n", counter)
 			}
 			counter++
-			time.Sleep(5 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }

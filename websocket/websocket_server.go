@@ -67,7 +67,7 @@ func Broadcast(data *[][]byte, size int, clients *[]WebSocketClient, mutex *sync
 	for _, client := range *clients {
 		go func () {
 			for i := 0; i < size; i++ {
-				opcode := OpcodeBinary
+				opcode := OpcodeMessage
 				if i > 0 {
 					opcode = OpcodeFin
 				}
@@ -80,7 +80,7 @@ func Broadcast(data *[][]byte, size int, clients *[]WebSocketClient, mutex *sync
 				)
 				if err != nil {
 					// Recreate new clients slice.
-					fmt.Printf("Failed to write%v\n", client.Pipe.RemoteAddr())
+					fmt.Printf("Failed to write %v, %v\n", client.Pipe.RemoteAddr(), err)
 					*clients = client.RemoveFromClientsWithLock(*clients, mutex)
 					return
 				}
