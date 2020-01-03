@@ -1,0 +1,8 @@
+version: "3"
+services:
+  nginx:
+    build: infra/nginx
+    container_name: nginx
+    ports:
+      - 41000:41000
+      - 42000:42000
