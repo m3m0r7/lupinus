@@ -108,14 +108,14 @@ func ListenCameraStreaming() {
 	)
 	fmt.Printf("Start camera receiving server %v\n", listener.Addr())
 
-	for {
-		connection, err := listener.Accept()
-		if err != nil {
-			fmt.Printf("Failed to listen. retry again.")
-			continue
-		}
+	go func() {
+		for {
+			connection, err := listener.Accept()
+			if err != nil {
+				fmt.Printf("Failed to listen. retry again.")
+				continue
+			}
 
-		go func() {
 			fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
 			illegalPacketCounter := maxIllegalPacketCounter
 			for {
@@ -158,6 +158,6 @@ func ListenCameraStreaming() {
 				)
 
 			}
-		}()
-	}
+		}
+	}()
 }
