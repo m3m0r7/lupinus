@@ -40,7 +40,7 @@ func GetAllHeaders(conn net.Conn) ([]http.ClientHeader, error) {
 			break
 		}
 
-		result := strings.Split(line, ":")
+		result := strings.SplitAfterN(line, ":", 1)
 
 		// If not exists :, set key to zero value
 		clientHeader := http.ClientHeader{}
