@@ -32,6 +32,9 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 		case "/api/v1/image":
 			responseBody, responseHeader = controller.RequestImage(clientMeta)
 			break
+		case "/api/v1/env":
+			responseBody, responseHeader = controller.RequestEnv(clientMeta)
+			break
 		case "/favicon.ico":
 			return nil, nil, nil
 		default:
