@@ -32,7 +32,7 @@ func Listen() {
 			fmt.Printf("Connected from: %v\n", connection.RemoteAddr())
 
 			// Get headers
-			headers, _ := client.GetAllHeaders(connection)
+			headers, _ := client.GetAllHeaders(&connection)
 			result, err := client.FindHeaderByKey(headers, "")
 
 			if err != nil {

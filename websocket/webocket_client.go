@@ -162,9 +162,9 @@ func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []
 	return append(body, payload...)
 }
 
-func Upgrade(conn net.Conn) (*WebSocketClient, error) {
+func Upgrade(conn *net.Conn) (*WebSocketClient, error) {
 	wsClient := WebSocketClient{
-		Pipe: conn,
+		Pipe: *conn,
 	}
 
 	headers, _ := parent.GetAllHeaders(conn)
@@ -194,7 +194,7 @@ func Upgrade(conn net.Conn) (*WebSocketClient, error) {
 		"Sec-WebSocket-Accept: " + wsAcceptHeader + "\n" +
 		"\n"
 
-	_, err = conn.Write([]byte(sendHeaders))
+	_, err = (*conn).Write([]byte(sendHeaders))
 	if err != nil {
 		return nil, errors.New("Failed to write")
 	}

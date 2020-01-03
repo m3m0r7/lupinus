@@ -47,7 +47,7 @@ func ListenCameraStreaming() {
 
 			go func() {
 				// Handshake
-				wsClient, err := websocket.Upgrade(connection)
+				wsClient, err := websocket.Upgrade(&connection)
 				if err != nil {
 					fmt.Printf("Disallowed to connect: %v\n", connection.RemoteAddr())
 					// Close connection

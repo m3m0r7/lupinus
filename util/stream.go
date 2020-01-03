@@ -2,13 +2,13 @@ package util
 
 import (
 	"bytes"
-	"io"
+	"net"
 )
 
-func ReadTo(reader io.Reader, dest *[]byte, delim []byte) error {
+func ReadTo(reader *net.Conn, dest *[]byte, delim []byte) error {
 	packet := make([]byte, 1)
 	for {
-		_, err := reader.Read(packet)
+		_, err := (*reader).Read(packet)
 		if err != nil {
 			return err
 		}

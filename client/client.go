@@ -22,7 +22,7 @@ func FindHeaderByKey(headers []http.ClientHeader, key string) (*http.ClientHeade
 	return nil, errors.New("Not found value from header with key.")
 }
 
-func GetAllHeaders(conn net.Conn) ([]http.ClientHeader, error) {
+func GetAllHeaders(conn *net.Conn) ([]http.ClientHeader, error) {
 
 	headers := []http.ClientHeader{}
 	remaining := maxHeadersLine
