@@ -1,10 +1,10 @@
 package main
 
 import (
-	"lupinus/servers/http/web"
-	"lupinus/servers/streaming"
 	"fmt"
 	"github.com/joho/godotenv"
+	"lupinus/servers/http/web"
+	"lupinus/servers/streaming"
 	"sync"
 )
 
