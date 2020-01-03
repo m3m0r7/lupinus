@@ -8,6 +8,7 @@ import (
 	"lupinus/validator"
 	"net"
 	"os"
+	"strconv"
 )
 
 const (
@@ -23,7 +24,6 @@ var (
 func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	readAuthKey := make([]byte, authKeySize)
 	receivedAuthKeySize, err := connection.Read(readAuthKey)
-	fmt.Printf("auth key = %v\n", receivedAuthKeySize)
 	if err != nil {
 		return nil, nil, -1, err
 	}
@@ -44,7 +44,9 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	realFrameSize := int(binary.BigEndian.Uint32(frameSize))
 
 	if realFrameSize < 0 || protectedImageSize < realFrameSize {
-		return nil, nil, -1, errors.New("protected memory allocation.")
+		return nil, nil, -1, errors.New(
+			"protected memory allocation. tried to alloc = " + strconv.Itoa(realFrameSize),
+		)
 	}
 
 	realFrame := []byte{}
