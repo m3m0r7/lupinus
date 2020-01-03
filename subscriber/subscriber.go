@@ -22,6 +22,7 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 
 	readAuthKey, err := util.ExpectToRead(connection, authKeySize)
 	if err != nil {
+		fmt.Printf("")
 		return nil, nil, -1, err
 	}
 
@@ -37,7 +38,7 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 		return nil, nil, -1, errReceivingFrameSize
 	}
 
-	realFrameSize := int(binary.BigEndian.Uint32(frameSize))
+	realFrameSize := int(binary.LittleEndian.Uint32(frameSize))
 
 	if realFrameSize < 0 || protectedImageSize < realFrameSize {
 		return nil, nil, -1, errors.New(
