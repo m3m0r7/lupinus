@@ -19,7 +19,8 @@ func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.Http
 		// Not exists a session
 		return &http.HttpBody{
 				Payload: http.Payload{
-					"message": "Unauthorized",
+					"status": 401,
+					"error": "Failed to authorize",
 				},
 			},
 			&http.HttpHeader{

@@ -37,8 +37,8 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 	if userData == nil {
 		return &http.HttpBody {
 			Payload: http.Payload{
-				"code": 100,
-				"message": "Failed to authorize",
+				"status": 401,
+				"error": "Failed to authorize",
 			},
 		},
 		&http.HttpHeader{
@@ -52,7 +52,7 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 
 	return &http.HttpBody {
 		Payload: http.Payload{
-			"message": "Sign-in was succeeded",
+			"status": 200,
 		},
 	},
 	&http.HttpHeader{

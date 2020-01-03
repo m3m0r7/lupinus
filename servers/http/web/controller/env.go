@@ -10,8 +10,8 @@ func RequestEnv(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHead
 	if clientMeta.Method != "PUT" {
 		return &http.HttpBody {
 			Payload: http.Payload{
-				"code": -1,
-				"message": "No data",
+				"status": 500,
+				"error": "No Data",
 			},
 		},
 		&http.HttpHeader{
