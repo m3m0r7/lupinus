@@ -101,6 +101,8 @@ func Listen() {
 					clientMeta.Protocol + " " + util.GetStatusCodeWithNameByCode(200) + "\n" +
 					"Content-Length: 0\n" +
 					"Connection: close\n" +
+					"Access-Control-Allow-Origin: *\n" +
+					"Access-Control-Allow-Credentials: true\n" +
 					"Access-Control-Allow-Method: *\n" +
 					"Access-Control-Allow-Headers: content-type, x-auth-key\n" +
 					"\n"
@@ -116,6 +118,11 @@ func Listen() {
 					clientMeta.Protocol + " " + util.GetStatusCodeWithNameByCode(404) + "\n" +
 					"Content-Length: 0\n" +
 					"Connection: close\n" +
+					"Access-Control-Allow-Origin: *\n" +
+					"Access-Control-Allow-Credentials: true\n" +
+					// for Preflight request
+					"Access-Control-Allow-Method: *\n" +
+					"Access-Control-Allow-Headers: content-type, x-auth-key\n" +
 					"\n"
 				clientMeta.Pipe.Write([]byte(writeData))
 				return
@@ -143,6 +150,8 @@ func Listen() {
 				"Content-Length: " + strconv.Itoa(len(body)) + "\n" +
 				"Content-Type: " + contentType + "\n" +
 				"Connection: close\n" +
+				"Access-Control-Allow-Origin: *\n" +
+				"Access-Control-Allow-Credentials: true\n" +
 				// for Preflight request
 				"Access-Control-Allow-Method: *\n" +
 				"Access-Control-Allow-Headers: content-type, x-auth-key\n" +
