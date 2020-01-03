@@ -26,11 +26,13 @@ type HttpClientMeta struct {
 }
 
 type HttpBody struct {
+	RawMode bool
 	Payload map[string]interface{}
 }
 
 type HttpHeader struct {
 	Status int
+	ContentType string
 	Headers []ClientHeader
 }
 

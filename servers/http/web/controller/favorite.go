@@ -71,7 +71,7 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 		dates[id] = append(
 			dates[id].([]dateObject),
 			dateObject{
-				"src": "image?id=" + strconv.Itoa(unixTime),
+				"src": "/api/v1/image?id=" + strconv.Itoa(unixTime),
 			},
 		)
 	}

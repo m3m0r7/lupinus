@@ -109,17 +109,27 @@ func Listen() {
 				return
 			}
 
-			resultJSON, _ := json.Marshal(responseBody.Payload)
-
-			stringifiedJSON := string(resultJSON)
+			var contentType string
+			var body string
 			statusWithName := util.GetStatusCodeWithNameByCode(
 				responseHeader.Status,
 			)
+
+			if responseBody.RawMode == false {
+				contentType = "application/json"
+				resultJSON, _ := json.Marshal(responseBody.Payload)
+
+				body = string(resultJSON)
+			} else {
+				contentType = responseHeader.ContentType
+				body = responseBody.Payload["body"].(string)
+			}
+
 			// Write buffer
 			writeData := "" +
 				clientMeta.Protocol + " " + statusWithName + "\n" +
-				"Content-Length: " + strconv.Itoa(len(stringifiedJSON)) + "\n" +
-				"Content-Type: application/json\n" +
+				"Content-Length: " + strconv.Itoa(len(body)) + "\n" +
+				"Content-Type: " + contentType + "\n" +
 				"Connection: close\n" +
 				// for Preflight request
 				"Access-Control-Allow-Method: *\n" +
@@ -132,7 +142,7 @@ func Listen() {
 			}
 
 			writeData += "\n" +
-				stringifiedJSON
+				body
 
 			connection.Write([]byte(writeData))
 		}()

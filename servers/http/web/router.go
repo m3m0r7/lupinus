@@ -30,7 +30,7 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 			responseBody, responseHeader = controller.RequestCapture(clientMeta)
 			break
 		case "/api/v1/image":
-			// TODO: implement here
+			responseBody, responseHeader = controller.RequestImage(clientMeta)
 			break
 		case "/favicon.ico":
 			return nil, nil, nil
