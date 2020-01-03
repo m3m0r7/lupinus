@@ -64,13 +64,13 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 		date := time.Unix(int64(unixTime), 0)
 		id := date.Format("20060102")
 
-		type dateObject = []map[string]interface{}
+		type dateObject = map[string]interface{}
 		if _, ok := dates[id]; !ok {
-			dates[id] = dateObject{}
+			dates[id] = []dateObject{}
 		}
 		dates[id] = append(
-			dates[id].(dateObject),
-			map[string]interface{}{
+			dates[id].([]dateObject),
+			dateObject{
 				"src": "image?id=" + strconv.Itoa(unixTime),
 			},
 		)
