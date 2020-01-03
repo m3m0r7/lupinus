@@ -18,23 +18,23 @@ var (
 	authKeySize = len(authKey)
 )
 
-func SubscribeImageStream(connection net.Conn) ([][]byte, int, error) {
+func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	readAuthKey := make([]byte, authKeySize)
 	receivedAuthKeySize, err := connection.Read(readAuthKey)
 	if err != nil {
-		return nil, -1, err
+		return nil, nil, -1, err
 	}
 
 	// Compare the received auth key and settled auth key.
 	if string(readAuthKey[:receivedAuthKeySize]) != authKey {
-		return nil, -1, errors.New("Invalid auth key.")
+		return nil, nil, -1, errors.New("Invalid auth key.")
 	}
 
 	// Receive frame size
 	frameSize := make([]byte, 4)
 	_, errReceivingFrameSize := connection.Read(frameSize)
 	if errReceivingFrameSize != nil {
-		return nil, -1, errReceivingFrameSize
+		return nil, nil, -1, errReceivingFrameSize
 	}
 
 	realFrameSize := binary.BigEndian.Uint32(frameSize)
@@ -42,13 +42,13 @@ func SubscribeImageStream(connection net.Conn) ([][]byte, int, error) {
 
 	receivedImageDataSize, errReceivingRealFrame := connection.Read(realFrame)
 	if errReceivingRealFrame != nil {
-		return nil, -1, errReceivingRealFrame
+		return nil, nil, -1, errReceivingRealFrame
 	}
 
 	frameData := realFrame[:receivedImageDataSize]
 
 	if !validator.IsImageJpeg(frameData) {
-		return nil, -1, errors.New("Does not match JPEG")
+		return nil, nil, -1, errors.New("Does not match JPEG")
 	}
 
 	// Chunk the too long data.
@@ -58,6 +58,6 @@ func SubscribeImageStream(connection net.Conn) ([][]byte, int, error) {
 		),
 		chunkSize,
 	)
-	return data, loops, nil
+	return frameData, data, loops, nil
 }
 

@@ -10,10 +10,13 @@ import (
 	"sync"
 	"../../websocket"
 	"../../subscriber"
+	"time"
+	"../../helper"
 )
 
 const (
 	maxIllegalPacketCounter = 5
+	updateStaticImageInterval = 30
 )
 
 func Listen() {
@@ -107,6 +110,7 @@ func Listen() {
 		go func() {
 			fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
 			illegalPacketCounter := maxIllegalPacketCounter
+			nextUpdateTime := time.Now().Unix()
 			for {
 				if illegalPacketCounter == 0 {
 					fmt.Printf("Respond invalid frame data. retry to listen.\n")
@@ -114,7 +118,15 @@ func Listen() {
 					return
 				}
 
-				data, loops, err := subscriber.SubscribeImageStream(connection)
+				frameData, data, loops, err := subscriber.SubscribeImageStream(connection)
+
+				currentTime := time.Now().Unix()
+				if nextUpdateTime < currentTime {
+					nextUpdateTime = currentTime + updateStaticImageInterval
+
+					// create image
+					helper.CreateStaticImage(frameData, "record/image.jpg")
+				}
 
 				if err != nil {
 					illegalPacketCounter--

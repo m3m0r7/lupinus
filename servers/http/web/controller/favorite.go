@@ -25,6 +25,7 @@ func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.Http
 func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	return &http.HttpBody{
 		Payload: map[string]interface{}{
+			"status": 200,
 			"dates": map[string]interface{}{
 				"20190105": []map[string]interface{}{
 					{
