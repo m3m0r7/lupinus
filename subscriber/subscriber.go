@@ -1,10 +1,11 @@
 package subscriber
 
 import (
-	"lupinus/util"
-	"lupinus/validator"
 	"encoding/binary"
 	"errors"
+	"fmt"
+	"lupinus/util"
+	"lupinus/validator"
 	"net"
 	"os"
 )
@@ -38,16 +39,26 @@ func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
 	}
 
 	realFrameSize := binary.BigEndian.Uint32(frameSize)
-	realFrame := make([]byte, realFrameSize)
+	realFrame := []byte{}
 
-	receivedImageDataSize, errReceivingRealFrame := connection.Read(realFrame)
-	if errReceivingRealFrame != nil {
-		return nil, nil, -1, errReceivingRealFrame
+	// Remaining calculator
+	remaining := int(realFrameSize)
+	for remaining > 0 {
+		tmpRead := make([]byte, realFrameSize)
+		receivedImageDataSize, errReceivingRealFrame := connection.Read(tmpRead)
+		realFrame = append(realFrame, tmpRead...)
+		if errReceivingRealFrame != nil {
+			return nil, nil, -1, errReceivingRealFrame
+		}
+
+		remaining -= receivedImageDataSize
 	}
 
-	frameData := realFrame[:receivedImageDataSize]
+	frameData := realFrame[:realFrameSize]
 
 	if !validator.IsImageJpeg(frameData) {
+		fmt.Printf("image = %d\n", realFrameSize)
+
 		return nil, nil, -1, errors.New("Does not match JPEG")
 	}
 

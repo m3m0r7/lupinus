@@ -1,16 +1,16 @@
 package validator
 
-import "bytes"
+import (
+	"bytes"
+)
 
 func IsImageJpeg(data []byte) bool {
 	jpegMagicBytes := [][]byte{
-		{0xff, 0xd8, 0xdd, 0xe0},
-		{0xff, 0xd8, 0xff, 0xee},
-		{0xff, 0xd8, 0xff, 0xdb},
+		{0xff, 0xd8},
 	}
 
 	for _, v := range jpegMagicBytes {
-		if bytes.Equal(data[:4], v) {
+		if bytes.Equal(data[:2], v) {
 			return true
 		}
 	}

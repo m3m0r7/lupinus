@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	exampleImageBuffer, _ := ioutil.ReadFile(dir + "/test.jpeg")
+	exampleImageBuffer, _ := ioutil.ReadFile(dir + "/test.jpg")
 	if err != nil {
 		fmt.Printf("Failed to load an image file: %v\n", err)
 		return

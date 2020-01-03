@@ -142,6 +142,7 @@ func ListenCameraStreaming() {
 				}
 
 				if err != nil {
+					fmt.Printf("err = %v\n", err)
 					illegalPacketCounter--
 					continue
 				}
