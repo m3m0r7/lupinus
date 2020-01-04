@@ -69,6 +69,7 @@ func Broadcast(data [][]byte, size int, clients *[]WebSocketClient) ([]*WebSocke
 	var wg sync.WaitGroup
 	var proceeded = int32(0)
 	count := int32(len(*clients))
+
 	for _, client := range *clients {
 		wg.Add(1)
 		go func () {
@@ -96,6 +97,7 @@ func Broadcast(data [][]byte, size int, clients *[]WebSocketClient) ([]*WebSocke
 		}()
 	}
 	wg.Wait()
+
 	var erroredClients = []*WebSocketClient{}
 	for proceeded < count {
 		select {

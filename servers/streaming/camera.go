@@ -149,14 +149,14 @@ func ListenCameraStreaming() {
 				}
 				illegalPacketCounter = maxIllegalPacketCounter
 
-				go func() {
-					// Broadcast to connected all clients.
-					websocket.Broadcast(
-						data,
-						loops,
-						&clients,
-					)
-				}()
+				// Broadcast to connected all clients.
+				_ := websocket.Broadcast(
+					data,
+					loops,
+					&clients,
+				)
+
+				fmt.Printf("proceeded!\n")
 			}
 		}
 	}()
