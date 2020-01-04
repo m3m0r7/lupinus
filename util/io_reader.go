@@ -1,25 +1,30 @@
 package util
 
 import (
-	"io"
+	"errors"
 	"net"
+)
+
+const (
+	maxRemainingCounter = 5
 )
 
 func ExpectToRead(stream *net.Conn, expect int) ([]byte, error) {
 	data := []byte{}
 	remaining := expect
+	remainingCounter := maxRemainingCounter
 	for remaining > 0 {
 		tmpRead := make([]byte, remaining)
-		size, err := (*stream).Read(tmpRead)
+		size, _ := (*stream).Read(tmpRead)
 		data = append(data, tmpRead[:size]...)
-		if err == io.EOF {
-			return data, nil
-		}
-		if err != nil {
-			return nil, err
-		}
 
 		remaining -= size
+		if size == 0 {
+			remainingCounter--
+			if remainingCounter == 0 {
+				return nil, errors.New("Write failed")
+			}
+		}
 	}
 	return data, nil
 }
