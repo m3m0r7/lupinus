@@ -152,10 +152,9 @@ func ListenCameraStreaming() {
 				go func() {
 					// Broadcast to connected all clients.
 					websocket.Broadcast(
-						&data,
+						data,
 						loops,
 						&clients,
-						&mutex,
 					)
 				}()
 			}
