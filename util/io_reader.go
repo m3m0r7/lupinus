@@ -12,7 +12,10 @@ func ExpectToRead(stream *net.Conn, expect int) ([]byte, error) {
 		tmpRead := make([]byte, remaining)
 		size, err := (*stream).Read(tmpRead)
 		data = append(data, tmpRead[:size]...)
-		if err != nil && err != io.EOF {
+		if err == io.EOF {
+			return data, nil
+		}
+		if err != nil {
 			return nil, err
 		}
 

@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"io"
 	"lupinus/util"
 	"lupinus/validator"
 	"net"
@@ -22,7 +21,7 @@ func SubscribeImageStream(connection *net.Conn) ([]byte, [][]byte, int, error) {
 	authKeySize := len(authKey)
 
 	readAuthKey, err := util.ExpectToRead(connection, authKeySize)
-	if err != nil && err != io.EOF {
+	if err != nil {
 		return nil, nil, -1, err
 	}
 
@@ -34,7 +33,7 @@ func SubscribeImageStream(connection *net.Conn) ([]byte, [][]byte, int, error) {
 	// Receive frame size
 	frameSize, errReceivingFrameSize := util.ExpectToRead(connection, 4)
 
-	if errReceivingFrameSize != nil && err != io.EOF {
+	if errReceivingFrameSize != nil {
 		return nil, nil, -1, errReceivingFrameSize
 	}
 
@@ -48,7 +47,7 @@ func SubscribeImageStream(connection *net.Conn) ([]byte, [][]byte, int, error) {
 
 	realFrame, errReceivingRealFrame := util.ExpectToRead(connection, realFrameSize)
 
-	if errReceivingRealFrame != nil && err != io.EOF {
+	if errReceivingRealFrame != nil {
 		return nil, nil, -1, errors.New("Error!")
 	}
 

@@ -91,7 +91,7 @@ func Broadcast(data [][]byte, size int, clients *[]WebSocketClient) ([]*WebSocke
 					// Recreate new clients slice.
 					fmt.Printf("Failed to write %v, %v\n", client.Pipe.RemoteAddr(), err)
 					erroredClientChannel <- &client
-					return
+					break
 				}
 			}
 		}()
