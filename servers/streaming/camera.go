@@ -116,9 +116,9 @@ func ListenCameraStreaming() {
 				continue
 			}
 
+			illegalPacketCounter := maxIllegalPacketCounter
 			go func() {
 				fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
-				illegalPacketCounter := maxIllegalPacketCounter
 				for {
 					if illegalPacketCounter == 0 {
 						fmt.Printf("Respond invalid frame data. retry to listen.\n")
