@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"net"
 )
 
@@ -11,7 +12,7 @@ func ExpectToRead(stream *net.Conn, expect int) ([]byte, error) {
 		tmpRead := make([]byte, remaining)
 		size, err := (*stream).Read(tmpRead)
 		data = append(data, tmpRead[:size]...)
-		if err != nil {
+		if err != nil && err != io.EOF {
 			return nil, err
 		}
 
