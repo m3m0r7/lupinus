@@ -29,9 +29,12 @@ var UpdateTime = time.Now().Unix()
 var NextUpdateTime = time.Now().Unix()
 
 func ListenCameraStreaming() {
+	wg := sync.WaitGroup{}
 	mutex := sync.Mutex{}
 	clients := []websocket.WebSocketClient{}
 	clientChannel := make(chan websocket.WebSocketClient)
+
+	wg.Add(1)
 
 	go func() {
 		listener, _ := net.Listen(
@@ -95,6 +98,10 @@ func ListenCameraStreaming() {
 					),
 				)
 
+				mutex.Lock()
+				clients = append(clients, client)
+				mutex.Unlock()
+
 				client.StartListener(
 					&clients,
 					&mutex,
@@ -116,12 +123,11 @@ func ListenCameraStreaming() {
 			&addr,
 		)
 
-
-
 		fmt.Printf("Start camera receiving server %v\n", listener.Addr())
 
 		for {
 			connection, err := listener.AcceptTCP()
+			connection.SetKeepAlive(true)
 			if err != nil {
 				fmt.Printf("Failed to listen. retry again.")
 				continue
@@ -141,6 +147,7 @@ func ListenCameraStreaming() {
 				// FIX Golang cannot read buffered data.
 				if frameData == nil && data == nil && loops == -1 && err == nil {
 					// Wait for buffered data
+					fmt.Printf("v = %v\n", frameData)
 					continue
 				}
 
@@ -181,4 +188,6 @@ func ListenCameraStreaming() {
 			}
 		}
 	}()
+
+	wg.Wait()
 }

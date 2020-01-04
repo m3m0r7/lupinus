@@ -30,10 +30,6 @@ func (client *WebSocketClient) ReceivedPing(response []byte) error {
 
 
 func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, mutex *sync.Mutex) {
-	mutex.Lock()
-	*clients = append(*clients, *client)
-	mutex.Unlock()
-
 	go func () {
 		for {
 			receivedResponse, opcode, err := client.Decode()

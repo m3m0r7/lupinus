@@ -30,7 +30,7 @@ func main() {
 	}
 
 	for {
-		connection, err := net.Dial("tcp", "localhost:31000")
+		connection, err := net.Dial("tcp", "localhost:30000")
 		if err != nil {
 			fmt.Println("Retry to connect for the testing")
 			time.Sleep(5 * time.Second)
