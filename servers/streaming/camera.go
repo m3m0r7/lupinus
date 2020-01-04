@@ -2,7 +2,6 @@ package streaming
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -128,11 +127,14 @@ func ListenCameraStreaming() {
 				frameData, data, loops, err := subscriber.SubscribeImageStream(connection)
 
 				if err != nil {
-					if err == errors.New("End of Stream") {
+					// FIX Golang cannot read buffered data.
+					if frameData == nil && data == nil && loops == -1 && err == nil {
 						// Wait for buffered data
 						continue
 					}
 					fmt.Printf("Error has occurred: %v\n", err)
+					illegalPacketCounter--
+					continue
 				}
 
 				// proceed favorite procedures
