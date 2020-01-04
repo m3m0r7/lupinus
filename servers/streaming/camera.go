@@ -101,13 +101,13 @@ func ListenCameraStreaming() {
 		}
 	}()
 
-	listener, _ := net.Listen(
-		"tcp",
-		os.Getenv("CAMERA_SERVER"),
-	)
-	fmt.Printf("Start camera receiving server %v\n", listener.Addr())
-
 	go func() {
+		listener, _ := net.Listen(
+			"tcp",
+			os.Getenv("CAMERA_SERVER"),
+		)
+		fmt.Printf("Start camera receiving server %v\n", listener.Addr())
+
 		for {
 			connection, err := listener.Accept()
 			if err != nil {
@@ -126,12 +126,13 @@ func ListenCameraStreaming() {
 
 				frameData, data, loops, err := subscriber.SubscribeImageStream(connection)
 
+				// FIX Golang cannot read buffered data.
+				if frameData == nil && data == nil && loops == -1 && err == nil {
+					// Wait for buffered data
+					continue
+				}
+
 				if err != nil {
-					// FIX Golang cannot read buffered data.
-					if frameData == nil && data == nil && loops == -1 && err == nil {
-						// Wait for buffered data
-						continue
-					}
 					fmt.Printf("Error has occurred: %v\n", err)
 					illegalPacketCounter--
 					continue
