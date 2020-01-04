@@ -2,6 +2,7 @@ package streaming
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -125,6 +126,14 @@ func ListenCameraStreaming() {
 				}
 
 				frameData, data, loops, err := subscriber.SubscribeImageStream(connection)
+
+				if err != nil {
+					if err == errors.New("End of Stream") {
+						// Wait for buffered data
+						continue
+					}
+					fmt.Printf("Error has occurred: %v\n", err)
+				}
 
 				// proceed favorite procedures
 				share.ProceedProcedure(
