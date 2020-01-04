@@ -1,16 +1,15 @@
 package streaming
 
 import (
-	"io"
-	"lupinus/helper"
-	"lupinus/subscriber"
-	"lupinus/util"
-	"lupinus/websocket"
-	"lupinus/share"
 	"bytes"
 	"fmt"
 	"image"
 	"image/jpeg"
+	"lupinus/helper"
+	"lupinus/share"
+	"lupinus/subscriber"
+	"lupinus/util"
+	"lupinus/websocket"
 	"net"
 	"os"
 	"sync"
@@ -142,7 +141,7 @@ func ListenCameraStreaming() {
 					helper.CreateStaticImage(frameData, "record/image.jpg")
 				}
 
-				if err != nil && err != io.EOF {
+				if err != nil {
 					fmt.Printf("err = %v\n", err)
 					illegalPacketCounter--
 					continue
