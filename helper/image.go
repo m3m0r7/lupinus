@@ -1,8 +1,8 @@
 package helper
 
 import (
-	"lupinus/config"
 	"encoding/json"
+	"lupinus/config"
 	"os"
 	"time"
 )
@@ -12,6 +12,8 @@ func CreateStaticImage(image []byte, filename string) {
 
 	// Write simple image
 	handle.Write(image)
+
+	handle.Close()
 
 	// Write meta
 	metaHandle, _ := os.Create(config.GetRootDir() + "/storage/" + filename + ".meta.json")
@@ -26,4 +28,6 @@ func CreateStaticImage(image []byte, filename string) {
 	)
 
 	metaHandle.Write(jsonData)
+
+	metaHandle.Close()
 }

@@ -51,21 +51,18 @@ func SubscribeImageStream(connection *net.Conn) ([]byte, [][]byte, int, error) {
 		return nil, nil, -1, errors.New("Error!")
 	}
 
-	frameData := realFrame
-
-	if !validator.IsImageJpeg(frameData) {
+	if !validator.IsImageJpeg(realFrame) {
 		fmt.Printf("image = %d\n", realFrameSize)
-
 		return nil, nil, -1, errors.New("Does not match JPEG")
 	}
 
 	// Chunk the too long data.
 	data, loops := util.Chunk(
 		util.Byte2base64URI(
-			frameData,
+			realFrame,
 		),
 		chunkSize,
 	)
-	return frameData, data, loops, nil
+	return realFrame, data, loops, nil
 }
 
