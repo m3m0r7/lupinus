@@ -12,6 +12,8 @@ import (
 	"lupinus/websocket"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -102,14 +104,24 @@ func ListenCameraStreaming() {
 	}()
 
 	go func() {
-		listener, _ := net.Listen(
+		hostname := strings.Split(os.Getenv("CAMERA_SERVER"), ":")
+		ip, _ := net.LookupIP(hostname[0])
+		port, _ := strconv.Atoi(hostname[1])
+		addr := net.TCPAddr{
+			IP: ip[0],
+			Port: port,
+		}
+		listener, _ := net.ListenTCP(
 			"tcp",
-			os.Getenv("CAMERA_SERVER"),
+			&addr,
 		)
+
+
+
 		fmt.Printf("Start camera receiving server %v\n", listener.Addr())
 
 		for {
-			connection, err := listener.Accept()
+			connection, err := listener.AcceptTCP()
 			if err != nil {
 				fmt.Printf("Failed to listen. retry again.")
 				continue
