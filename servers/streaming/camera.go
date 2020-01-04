@@ -116,13 +116,13 @@ func ListenCameraStreaming() {
 				continue
 			}
 
-			illegalPacketCounter := maxIllegalPacketCounter
 			fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
+			illegalPacketCounter := maxIllegalPacketCounter
 			for {
 				if illegalPacketCounter == 0 {
 					fmt.Printf("Respond invalid frame data. retry to listen.\n")
 					connection.Close()
-					return
+					break
 				}
 
 				frameData, data, loops, err := subscriber.SubscribeImageStream(&connection)
@@ -150,13 +150,11 @@ func ListenCameraStreaming() {
 				illegalPacketCounter = maxIllegalPacketCounter
 
 				// Broadcast to connected all clients.
-				_ := websocket.Broadcast(
+				_ = websocket.Broadcast(
 					data,
 					loops,
 					&clients,
 				)
-
-				fmt.Printf("proceeded!\n")
 			}
 		}
 	}()
