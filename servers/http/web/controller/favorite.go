@@ -3,9 +3,9 @@ package controller
 import (
 	"lupinus/client"
 	"lupinus/config"
+	"lupinus/helper"
 	"lupinus/servers/http"
 	"lupinus/servers/http/web/behavior"
-	"lupinus/helper"
 	"lupinus/share"
 	"os"
 	"path/filepath"
@@ -25,7 +25,7 @@ func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.Http
 		return &http.HttpBody{
 				Payload: http.Payload{
 					"status": 401,
-					"error": "Failed to authorize",
+					"error":  "Failed to authorize",
 				},
 			},
 			&http.HttpHeader{
@@ -83,14 +83,14 @@ func requestFavoriteByGet(clientMeta http.HttpClientMeta) (*http.HttpBody, *http
 	}
 
 	return &http.HttpBody{
-		Payload: http.Payload{
-			"status": 200,
-			"dates": dates,
+			Payload: http.Payload{
+				"status": 200,
+				"dates":  dates,
+			},
 		},
-	},
-	&http.HttpHeader{
-		Status: 200,
-	}
+		&http.HttpHeader{
+			Status: 200,
+		}
 }
 
 func requestFavoriteByPost(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -110,11 +110,11 @@ func requestFavoriteByPost(clientMeta http.HttpClientMeta) (*http.HttpBody, *htt
 		},
 	)
 	return &http.HttpBody{
-		Payload: http.Payload{
-			"status": 200,
+			Payload: http.Payload{
+				"status": 200,
+			},
 		},
-	},
-	&http.HttpHeader{
-		Status: 200,
-	}
+		&http.HttpHeader{
+			Status: 200,
+		}
 }

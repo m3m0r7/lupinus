@@ -1,11 +1,11 @@
 package web
 
 import (
-	"lupinus/client"
-	"lupinus/util"
-	"lupinus/servers/http"
 	"encoding/json"
 	"fmt"
+	"lupinus/client"
+	"lupinus/servers/http"
+	"lupinus/util"
 	"net"
 	"net/url"
 	"os"
@@ -51,7 +51,7 @@ func Listen() {
 					cookies = append(
 						cookies,
 						http.Cookie{
-							Name: strings.TrimSpace(pair[0]),
+							Name:  strings.TrimSpace(pair[0]),
 							Value: strings.TrimSpace(pair[1]),
 						},
 					)
@@ -88,13 +88,13 @@ func Listen() {
 			// TODO: Validator
 
 			clientMeta := http.HttpClientMeta{
-				Pipe: &connection,
-				Method: strings.ToUpper(method),
-				Path: *urlObject,
+				Pipe:     &connection,
+				Method:   strings.ToUpper(method),
+				Path:     *urlObject,
 				Protocol: protocol,
-				Payload: requestBody,
-				Cookies: cookies,
-				Headers: headers,
+				Payload:  requestBody,
+				Cookies:  cookies,
+				Headers:  headers,
 			}
 
 			originHeader, err := client.FindHeaderByKey(clientMeta.Headers, "origin")

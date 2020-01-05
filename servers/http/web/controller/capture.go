@@ -6,10 +6,10 @@ import (
 	"image/jpeg"
 	"io/ioutil"
 	"lupinus/client"
+	"lupinus/config"
 	"lupinus/servers/http"
 	"lupinus/servers/http/web/behavior"
 	"lupinus/servers/streaming"
-	"lupinus/config"
 	"lupinus/util"
 	"os"
 )
@@ -26,7 +26,7 @@ func RequestCapture(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpH
 		return &http.HttpBody{
 				Payload: http.Payload{
 					"status": 500,
-					"error": "Unauthorized",
+					"error":  "Unauthorized",
 				},
 			},
 			&http.HttpHeader{
@@ -72,13 +72,13 @@ func RequestCapture(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpH
 	}
 
 	return &http.HttpBody{
-		Payload: http.Payload{
-			"status": 200,
-			"image": string(util.Byte2base64URI(capturedImage)),
-			"updated_at": streaming.UpdateTime,
-			"update_interval": streaming.UpdateStaticImageInterval,
-			"next_update": streaming.NextUpdateTime,
+			Payload: http.Payload{
+				"status":          200,
+				"image":           string(util.Byte2base64URI(capturedImage)),
+				"updated_at":      streaming.UpdateTime,
+				"update_interval": streaming.UpdateStaticImageInterval,
+				"next_update":     streaming.NextUpdateTime,
+			},
 		},
-	},
-	header
+		header
 }

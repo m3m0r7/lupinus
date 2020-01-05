@@ -26,13 +26,13 @@ const (
 )
 
 const (
-	maxHeadersLine = 128
+	maxHeadersLine         = 128
 	maxRetryToWriteCounter = 3
 )
 
 type WebSocketClient struct {
-	Pipe net.Conn
-	Headers []http.ClientHeader
+	Pipe      net.Conn
+	Headers   []http.ClientHeader
 	Handshake bool
 }
 
@@ -101,7 +101,7 @@ func (client *WebSocketClient) Decode() ([]byte, int, error) {
 
 	if maskFlag == 1 {
 		for i, char := range payload {
-			payload[i] = char ^ maskData[i % 4]
+			payload[i] = char ^ maskData[i%4]
 		}
 	}
 
@@ -129,7 +129,7 @@ func (client *WebSocketClient) Encode(payload []byte, opcode int, isFin bool) []
 		finFlag = 128
 	}
 
-	body = append(body, util.Uint2bytes(finFlag + opcode, 1)...)
+	body = append(body, util.Uint2bytes(finFlag+opcode, 1)...)
 	body = append(body, util.Uint2bytes(sendType, 1)...)
 
 	if sendType == 126 {
@@ -171,7 +171,7 @@ func Upgrade(conn *net.Conn) (*WebSocketClient, error) {
 		),
 	)
 
-	sendHeaders :=  "HTTP/1.1 101 Switching Protocols\n" +
+	sendHeaders := "HTTP/1.1 101 Switching Protocols\n" +
 		"Upgrade: websocket\n" +
 		"Connection: upgrade\n" +
 		"Sec-WebSocket-Accept: " + wsAcceptHeader + "\n" +

@@ -6,23 +6,23 @@ import (
 )
 
 type ClientHeader struct {
-	Key string
+	Key   string
 	Value string
 }
 
 type Client struct {
-	Pipe net.Conn
+	Pipe    net.Conn
 	Headers []ClientHeader
 }
 
 type HttpClientMeta struct {
 	Protocol string
-	Pipe *net.Conn
-	Method string
-	Headers []ClientHeader
-	Path url.URL
-	Payload []byte
-	Cookies []Cookie
+	Pipe     *net.Conn
+	Method   string
+	Headers  []ClientHeader
+	Path     url.URL
+	Payload  []byte
+	Cookies  []Cookie
 }
 
 type HttpBody struct {
@@ -31,13 +31,13 @@ type HttpBody struct {
 }
 
 type HttpHeader struct {
-	Status int
+	Status      int
 	ContentType string
-	Headers []ClientHeader
+	Headers     []ClientHeader
 }
 
 type ErrorMessage struct {
-	Code int
+	Code    int
 	Message string
 }
 

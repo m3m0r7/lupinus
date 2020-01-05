@@ -21,8 +21,8 @@ func CreateStaticImage(image []byte, filename string) {
 	jsonData, _ := json.Marshal(
 		map[string]interface{}{
 			// FIXME: get extension by image data
-			"extension": "jpg",
-			"time": time.Now().Unix(),
+			"extension":     "jpg",
+			"time":          time.Now().Unix(),
 			"camera_number": 0,
 		},
 	)

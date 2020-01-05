@@ -16,13 +16,13 @@ func RequestImage(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 	if session == nil {
 		// Not exists a session
 		return &http.HttpBody{
-			Payload: http.Payload{
-				"message": "Unauthorized",
+				Payload: http.Payload{
+					"message": "Unauthorized",
+				},
 			},
-		},
-		&http.HttpHeader{
-			Status: 401,
-		}
+			&http.HttpHeader{
+				Status: 401,
+			}
 	}
 
 	id := clientMeta.Path.Query().Get("id")
@@ -46,26 +46,26 @@ func RequestImage(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 	if err != nil {
 		// Not exists a session
 		return &http.HttpBody{
-			Payload: http.Payload{
-				"message": "No Image",
+				Payload: http.Payload{
+					"message": "No Image",
+				},
 			},
-		},
-		&http.HttpHeader{
-			Status: 404,
-		}
+			&http.HttpHeader{
+				Status: 404,
+			}
 	}
 
 	data, _ := ioutil.ReadAll(handle)
 
 	// Not exists a session
 	return &http.HttpBody{
-		RawMode: true,
-		Payload: http.Payload{
-			"body": string(data),
+			RawMode: true,
+			Payload: http.Payload{
+				"body": string(data),
+			},
 		},
-	},
-	&http.HttpHeader{
-		ContentType: "image/jpeg",
-		Status: 200,
-	}
+		&http.HttpHeader{
+			ContentType: "image/jpeg",
+			Status:      200,
+		}
 }

@@ -3,8 +3,8 @@ package model
 import (
 	"encoding/json"
 	"io/ioutil"
-	"os"
 	"lupinus/config"
+	"os"
 )
 
 var initializedInstance *Model = nil

@@ -19,7 +19,7 @@ func (model *Model) Find(username string, password string) *map[string]interface
 	path := model.Records[username].(map[string]interface{})
 
 	passwordOwnProperty := util.GetFromMap("password", path)
-	if passwordOwnProperty == nil  {
+	if passwordOwnProperty == nil {
 		return nil
 	}
 
@@ -30,4 +30,3 @@ func (model *Model) Find(username string, password string) *map[string]interface
 
 	return nil
 }
-

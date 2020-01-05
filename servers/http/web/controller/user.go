@@ -15,23 +15,23 @@ func RequestUser(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHead
 		session == nil {
 		// Not exists a session
 		return &http.HttpBody{
-			Payload: http.Payload{
-				"status": 500,
-				"error": "Unauthorized",
+				Payload: http.Payload{
+					"status": 500,
+					"error":  "Unauthorized",
+				},
 			},
-		},
-		&http.HttpHeader{
-			Status: 401,
-		}
+			&http.HttpHeader{
+				Status: 401,
+			}
 	}
 
 	return &http.HttpBody{
-		Payload: http.Payload{
-			"status": 200,
-			"user": session.Data,
+			Payload: http.Payload{
+				"status": 200,
+				"user":   session.Data,
+			},
 		},
-	},
-	&http.HttpHeader{
-		Status: 200,
-	}
+		&http.HttpHeader{
+			Status: 200,
+		}
 }

@@ -62,7 +62,6 @@ func ListenCameraStreaming() {
 		}
 	}()
 
-
 	// First contact, We send an image which fulfilled black.
 	buffer := bytes.NewBuffer([]byte{})
 	filledImage := image.NewRGBA(
@@ -120,7 +119,7 @@ func ListenCameraStreaming() {
 				// Update clients slice
 				clients = tmpClients
 				mutex.Unlock()
-			break
+				break
 			}
 		}
 	}()
@@ -130,7 +129,7 @@ func ListenCameraStreaming() {
 		ip, _ := net.LookupIP(hostname[0])
 		port, _ := strconv.Atoi(hostname[1])
 		addr := net.TCPAddr{
-			IP: ip[0],
+			IP:   ip[0],
 			Port: port,
 		}
 		listener, _ := net.ListenTCP(
@@ -193,7 +192,7 @@ func ListenCameraStreaming() {
 				}
 				illegalPacketCounter = maxIllegalPacketCounter
 
-				go func () {
+				go func() {
 					mutex.Lock()
 					defer mutex.Unlock()
 					// Broadcast to connected all clients.

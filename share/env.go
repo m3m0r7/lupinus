@@ -5,9 +5,9 @@ var (
 )
 
 type Env struct {
-	Temp float64
+	Temp     float64
 	Humidity float64
-	CpuTemp float64
+	CpuTemp  float64
 	Pressure float64
 }
 

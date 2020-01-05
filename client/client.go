@@ -1,15 +1,15 @@
 package client
 
 import (
+	"errors"
 	"lupinus/servers/http"
 	"lupinus/util"
-	"errors"
 	"net"
 	"strings"
 )
 
 const (
-	maxHeadersLine = 128
+	maxHeadersLine         = 128
 	maxRetryToWriteCounter = 3
 )
 
@@ -45,12 +45,12 @@ func GetAllHeaders(conn *net.Conn) ([]http.ClientHeader, error) {
 		// If not exists :, set key to zero value
 		clientHeader := http.ClientHeader{}
 		if len(result) <= 1 {
-			clientHeader = http.ClientHeader {
+			clientHeader = http.ClientHeader{
 				Value: strings.Trim(result[0], " "),
 			}
 		} else {
-			clientHeader = http.ClientHeader {
-				Key: strings.ToLower(strings.Trim(result[0], " ")),
+			clientHeader = http.ClientHeader{
+				Key:   strings.ToLower(strings.Trim(result[0], " ")),
 				Value: strings.Trim(result[1], " "),
 			}
 		}

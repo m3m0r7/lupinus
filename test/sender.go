@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/joho/godotenv"
 	"io/ioutil"
 	"net"
-	"time"
 	"os"
-	"github.com/joho/godotenv"
+	"time"
 )
 
 func main() {

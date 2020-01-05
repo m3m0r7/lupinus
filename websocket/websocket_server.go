@@ -26,9 +26,8 @@ func (client *WebSocketClient) ReceivedPing(response []byte) error {
 	return err
 }
 
-
 func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, lostClientChannel chan WebSocketClient) {
-	go func () {
+	go func() {
 		for {
 			receivedResponse, opcode, err := client.Decode()
 			if err != nil {

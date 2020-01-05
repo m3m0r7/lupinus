@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
-	"lupinus/util"
 	"lupinus/config"
+	"lupinus/util"
+	"os"
 )
 
 var sessionDir = config.GetRootDir() + "/storage/session/"
 
 type Session struct {
 	SessionId string
-	Data map[string]interface{}
+	Data      map[string]interface{}
 }
 
 func CreateSession() *Session {
@@ -21,9 +21,9 @@ func CreateSession() *Session {
 	hash := util.Generate(128)
 
 	AddCookie(Cookie{
-		Name: os.Getenv("SESSION_ID"),
-		Value: hash,
-		Path: "/",
+		Name:   os.Getenv("SESSION_ID"),
+		Value:  hash,
+		Path:   "/",
 		Domain: os.Getenv("COOKIE_DOMAIN"),
 
 		// 1 year
@@ -44,7 +44,7 @@ func CreateSession() *Session {
 }
 
 func (session *Session) Write(key string, value string) {
-	handle, err := os.OpenFile(sessionDir + session.SessionId, os.O_RDWR, 0644)
+	handle, err := os.OpenFile(sessionDir+session.SessionId, os.O_RDWR, 0644)
 	if err != nil {
 		// Session file has broken
 		return
@@ -72,7 +72,7 @@ func LoadSessionFromCookie(cookies []Cookie) *Session {
 		return nil
 	}
 
-	handle, err := os.OpenFile(sessionDir + cookie.Value, os.O_RDWR, 0644)
+	handle, err := os.OpenFile(sessionDir+cookie.Value, os.O_RDWR, 0644)
 	if err != nil {
 		return nil
 	}
@@ -86,6 +86,6 @@ func LoadSessionFromCookie(cookies []Cookie) *Session {
 
 	return &Session{
 		SessionId: data["id"].(string),
-		Data: data,
+		Data:      data,
 	}
 }

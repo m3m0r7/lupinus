@@ -6,17 +6,17 @@ import (
 	"lupinus/share"
 )
 
-func RequestEnv(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHeader) {
+func RequestEnv(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	if clientMeta.Method != "PUT" {
-		return &http.HttpBody {
-			Payload: http.Payload{
-				"status": 500,
-				"error": "No Data",
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"status": 500,
+					"error":  "No Data",
+				},
 			},
-		},
-		&http.HttpHeader{
-			Status: 404,
-		}
+			&http.HttpHeader{
+				Status: 404,
+			}
 	}
 
 	data := map[string]interface{}{}
@@ -29,12 +29,12 @@ func RequestEnv(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHead
 		data["pressure"].(float64),
 	)
 
-	return &http.HttpBody {
-		Payload: http.Payload{
-			"status": 200,
+	return &http.HttpBody{
+			Payload: http.Payload{
+				"status": 200,
+			},
 		},
-	},
-	&http.HttpHeader{
-		Status: 200,
-	}
+		&http.HttpHeader{
+			Status: 200,
+		}
 }
