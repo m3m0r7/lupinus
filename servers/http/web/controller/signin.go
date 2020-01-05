@@ -1,10 +1,12 @@
 package controller
 
 import (
-	"lupinus/model"
-	"lupinus/util"
-	"lupinus/servers/http"
 	"encoding/json"
+	"lupinus/client"
+	"lupinus/model"
+	"lupinus/servers/http"
+	"lupinus/util"
+	"os"
 )
 
 func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
@@ -18,6 +20,21 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 
 	if err != nil {
 		return nil, nil
+	}
+
+	authKeyHeader, err := client.FindHeaderByKey(clientMeta.Headers, "x-auth-key")
+	if err != nil ||
+		os.Getenv("AUTH_KEY") != (*authKeyHeader).Value {
+		// Not exists a session
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"status": 500,
+					"error": "Unauthorized",
+				},
+			},
+			&http.HttpHeader{
+				Status: 401,
+			}
 	}
 
 	username := util.GetFromMap("id", jsonData)

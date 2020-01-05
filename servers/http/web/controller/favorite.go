@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"lupinus/client"
 	"lupinus/config"
 	"lupinus/servers/http"
 	"lupinus/servers/http/web/behavior"
 	"lupinus/helper"
 	"lupinus/share"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -15,7 +17,10 @@ import (
 func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	session := behavior.GetSignInInfo(clientMeta)
 
-	if session == nil {
+	authKeyHeader, err := client.FindHeaderByKey(clientMeta.Headers, "x-auth-key")
+	if err != nil ||
+		os.Getenv("AUTH_KEY") != (*authKeyHeader).Value ||
+		session == nil {
 		// Not exists a session
 		return &http.HttpBody{
 				Payload: http.Payload{
