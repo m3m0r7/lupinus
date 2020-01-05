@@ -106,6 +106,7 @@ func ListenCameraStreaming() {
 				)
 				break
 			case client := <-lostClientChannel:
+				fmt.Printf("Connection lost.\n")
 				mutex.Lock()
 				clients = client.RemoveFromClients(
 					clients,
@@ -135,8 +136,8 @@ func ListenCameraStreaming() {
 			connection, err := listener.AcceptTCP()
 			connection.SetKeepAlive(true)
 			if err != nil {
-				fmt.Printf("Failed to listen. retry again.")
-				continue
+				fmt.Printf("Failed to listen. retry again.\n")
+				break
 			}
 
 			fmt.Printf("[CAMERA] Connected from %v\n", connection.RemoteAddr())
@@ -152,9 +153,8 @@ func ListenCameraStreaming() {
 
 				// FIX Golang cannot read buffered data.
 				if frameData == nil && data == nil && loops == -1 && err == nil {
-					// Wait for buffered data
-					fmt.Printf("v = %v\n", frameData)
-					continue
+					// io.EOF
+					break
 				}
 
 				if err != nil {
@@ -185,13 +185,17 @@ func ListenCameraStreaming() {
 				}
 				illegalPacketCounter = maxIllegalPacketCounter
 
-				// Broadcast to connected all clients.
-				websocket.Broadcast(
-					data,
-					loops,
-					&clients,
-					lostClientChannel,
-				)
+				go func () {
+					mutex.Lock()
+					defer mutex.Unlock()
+					// Broadcast to connected all clients.
+					websocket.Broadcast(
+						data,
+						loops,
+						clients,
+						lostClientChannel,
+					)
+				}()
 			}
 		}
 	}

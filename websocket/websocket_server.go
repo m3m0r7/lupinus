@@ -58,28 +58,26 @@ func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, lostCli
 	}()
 }
 
-func Broadcast(data [][]byte, size int, clients *[]WebSocketClient, lostClientChannel chan WebSocketClient) {
-	for _, client := range *clients {
-		go func () {
-			for i := 0; i < size; i++ {
-				opcode := OpcodeMessage
-				if i > 0 {
-					opcode = OpcodeFin
-				}
-				err := client.Write(
-					client.Encode(
-						data[i],
-						opcode,
-						(i + 1) == size,
-					),
-				)
-				if err != nil {
-					// Recreate new clients slice.
-					fmt.Printf("Failed to write %v, %v\n", client.Pipe.RemoteAddr(), err)
-					lostClientChannel <- client
-					break
-				}
+func Broadcast(data [][]byte, size int, clients []WebSocketClient, lostClientChannel chan WebSocketClient) {
+	for _, client := range clients {
+		for i := 0; i < size; i++ {
+			opcode := OpcodeMessage
+			if i > 0 {
+				opcode = OpcodeFin
 			}
-		}()
+			err := client.Write(
+				client.Encode(
+					data[i],
+					opcode,
+					(i+1) == size,
+				),
+			)
+			if err != nil {
+				// Recreate new clients slice.
+				fmt.Printf("Failed to write %v, %v\n", client.Pipe.RemoteAddr(), err)
+				lostClientChannel <- client
+				break
+			}
+		}
 	}
 }
