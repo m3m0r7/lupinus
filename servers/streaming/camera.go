@@ -12,6 +12,7 @@ import (
 	"lupinus/websocket"
 	"net"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -106,11 +107,18 @@ func ListenCameraStreaming() {
 				)
 				break
 			case client := <-lostClientChannel:
-				fmt.Printf("Connection lost.\n")
 				mutex.Lock()
-				clients = client.RemoveFromClients(
-					clients,
-				)
+				tmpClients := []websocket.WebSocketClient{}
+				for _, tmpClient := range clients {
+					if reflect.DeepEqual(tmpClient, client) {
+						_ = client.Pipe.Close()
+						continue
+					}
+					tmpClients = append(tmpClients, tmpClient)
+				}
+
+				// Update clients slice
+				clients = tmpClients
 				mutex.Unlock()
 			break
 			}

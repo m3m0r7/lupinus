@@ -10,7 +10,6 @@ import (
 	"lupinus/servers/http"
 	"lupinus/util"
 	"net"
-	"reflect"
 )
 
 // WebSocket key ID.
@@ -35,17 +34,6 @@ type WebSocketClient struct {
 	Pipe net.Conn
 	Headers []http.ClientHeader
 	Handshake bool
-}
-
-func (client *WebSocketClient) RemoveFromClients(clients []WebSocketClient) []WebSocketClient {
-	tmpClients := []WebSocketClient{}
-	for _, tmpClient := range clients {
-		if !reflect.DeepEqual(tmpClient, client) {
-			_ = client.Pipe.Close()
-			tmpClients = append(tmpClients, tmpClient)
-		}
-	}
-	return tmpClients
 }
 
 func (client *WebSocketClient) findHeaderByKey(key string) (*http.ClientHeader, error) {
