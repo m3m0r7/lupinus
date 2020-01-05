@@ -23,6 +23,7 @@ func RequestUser(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHead
 
 	return &http.HttpBody{
 		Payload: http.Payload{
+			"status": 200,
 			"user": session.Data,
 		},
 	},

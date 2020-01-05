@@ -27,6 +27,7 @@ func RequestInfo(clientMeta http.HttpClientMeta)  (*http.HttpBody, *http.HttpHea
 
 	return &http.HttpBody{
 		Payload: http.Payload{
+			"status": 200,
 			"info": map[string]interface{}{
 				"temperature": temperature,
 				"humidity": humidity,

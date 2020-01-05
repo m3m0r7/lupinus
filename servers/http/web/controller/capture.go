@@ -54,6 +54,7 @@ func RequestCapture(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpH
 
 	return &http.HttpBody{
 		Payload: http.Payload{
+			"status": 200,
 			"image": string(util.Byte2base64URI(capturedImage)),
 			"updated_at": streaming.UpdateTime,
 			"update_interval": streaming.UpdateStaticImageInterval,
