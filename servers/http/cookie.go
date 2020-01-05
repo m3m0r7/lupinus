@@ -22,7 +22,7 @@ func AddCookie(cookie Cookie) {
 	tmp = append(tmp, "Path=" + cookie.Path)
 
 	if cookie.Domain != "" {
-		tmp = append(tmp, "Domain="+cookie.Domain)
+		tmp = append(tmp, "Domain=" + cookie.Domain)
 	}
 
 	tmp = append(tmp, "Expires=" + strconv.Itoa(cookie.MaxAge))

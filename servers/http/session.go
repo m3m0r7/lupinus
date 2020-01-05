@@ -24,6 +24,7 @@ func CreateSession() *Session {
 		Name: os.Getenv("SESSION_ID"),
 		Value: hash,
 		Path: "/",
+		Domain: os.Getenv("COOKIE_DOMAIN"),
 
 		// 1 year
 		MaxAge: 60 * 60 * 24 * 30 * 12,
