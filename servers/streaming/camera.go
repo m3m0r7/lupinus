@@ -29,12 +29,10 @@ var UpdateTime = time.Now().Unix()
 var NextUpdateTime = time.Now().Unix()
 
 func ListenCameraStreaming() {
-	wg := sync.WaitGroup{}
 	mutex := sync.Mutex{}
 	clients := []websocket.WebSocketClient{}
 	clientChannel := make(chan websocket.WebSocketClient)
-
-	wg.Add(1)
+	lostClientChannel := make(chan websocket.WebSocketClient)
 
 	go func() {
 		listener, _ := net.Listen(
@@ -104,13 +102,21 @@ func ListenCameraStreaming() {
 
 				client.StartListener(
 					&clients,
-					&mutex,
+					lostClientChannel,
 				)
+				break
+			case client := <-lostClientChannel:
+				mutex.Lock()
+				clients = client.RemoveFromClients(
+					clients,
+				)
+				mutex.Unlock()
+			break
 			}
 		}
 	}()
 
-	go func() {
+	for {
 		hostname := strings.Split(os.Getenv("CAMERA_SERVER"), ":")
 		ip, _ := net.LookupIP(hostname[0])
 		port, _ := strconv.Atoi(hostname[1])
@@ -180,14 +186,13 @@ func ListenCameraStreaming() {
 				illegalPacketCounter = maxIllegalPacketCounter
 
 				// Broadcast to connected all clients.
-				_ = websocket.Broadcast(
+				websocket.Broadcast(
 					data,
 					loops,
 					&clients,
+					lostClientChannel,
 				)
 			}
 		}
-	}()
-
-	wg.Wait()
+	}
 }

@@ -6,12 +6,11 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	parent "lupinus/client"
+	"lupinus/servers/http"
+	"lupinus/util"
 	"net"
 	"reflect"
-	"lupinus/util"
-	"lupinus/servers/http"
-	parent "lupinus/client"
-	"sync"
 )
 
 // WebSocket key ID.
@@ -38,16 +37,11 @@ type WebSocketClient struct {
 	Handshake bool
 }
 
-func (client *WebSocketClient) RemoveFromClientsWithLock(clients []WebSocketClient, mutex *sync.Mutex) []WebSocketClient {
-	mutex.Lock()
-	defer mutex.Unlock()
-	return client.RemoveFromClients(clients)
-}
-
 func (client *WebSocketClient) RemoveFromClients(clients []WebSocketClient) []WebSocketClient {
 	tmpClients := []WebSocketClient{}
 	for _, tmpClient := range clients {
 		if !reflect.DeepEqual(tmpClient, client) {
+			_ = client.Pipe.Close()
 			tmpClients = append(tmpClients, tmpClient)
 		}
 	}

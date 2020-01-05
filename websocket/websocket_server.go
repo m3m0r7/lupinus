@@ -2,8 +2,6 @@ package websocket
 
 import (
 	"fmt"
-	"sync"
-	"sync/atomic"
 )
 
 func (client *WebSocketClient) ReceivedClose(response []byte) error {
@@ -29,26 +27,26 @@ func (client *WebSocketClient) ReceivedPing(response []byte) error {
 }
 
 
-func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, mutex *sync.Mutex) {
+func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, lostClientChannel chan WebSocketClient) {
 	go func () {
 		for {
 			receivedResponse, opcode, err := client.Decode()
 			if err != nil {
 				err = client.Pipe.Close()
-				*clients = client.RemoveFromClientsWithLock(*clients, mutex)
+				lostClientChannel <- *client
 				return
 			}
 
 			switch opcode {
 			case OpcodeClose:
 				err = client.ReceivedClose(receivedResponse)
-				*clients = client.RemoveFromClientsWithLock(*clients, mutex)
+				lostClientChannel <- *client
 				return
 			case OpcodePing:
 				err = client.ReceivedPing(receivedResponse)
 				if err != nil {
 					err = client.Pipe.Close()
-					*clients = client.RemoveFromClientsWithLock(*clients, mutex)
+					lostClientChannel <- *client
 					return
 				}
 				break
@@ -60,17 +58,9 @@ func (client *WebSocketClient) StartListener(clients *[]WebSocketClient, mutex *
 	}()
 }
 
-func Broadcast(data [][]byte, size int, clients *[]WebSocketClient) ([]*WebSocketClient) {
-	var erroredClientChannel chan *WebSocketClient
-	var wg sync.WaitGroup
-	var proceeded = int32(0)
-	count := int32(len(*clients))
-
+func Broadcast(data [][]byte, size int, clients *[]WebSocketClient, lostClientChannel chan WebSocketClient) {
 	for _, client := range *clients {
-		wg.Add(1)
 		go func () {
-			defer wg.Done()
-			defer atomic.AddInt32(&proceeded, 1)
 			for i := 0; i < size; i++ {
 				opcode := OpcodeMessage
 				if i > 0 {
@@ -86,21 +76,10 @@ func Broadcast(data [][]byte, size int, clients *[]WebSocketClient) ([]*WebSocke
 				if err != nil {
 					// Recreate new clients slice.
 					fmt.Printf("Failed to write %v, %v\n", client.Pipe.RemoteAddr(), err)
-					erroredClientChannel <- &client
+					lostClientChannel <- client
 					break
 				}
 			}
 		}()
 	}
-	wg.Wait()
-
-	var erroredClients = []*WebSocketClient{}
-	for proceeded < count {
-		select {
-		case client := <-erroredClientChannel:
-			erroredClients = append(erroredClients, client)
-			break
-		}
-	}
-	return erroredClients
 }
