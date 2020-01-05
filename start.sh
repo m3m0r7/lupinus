@@ -1,3 +1,3 @@
 #!/bin/sh
 
-go run main.go
+/bin/go run main.go
