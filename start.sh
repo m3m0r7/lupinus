@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Change working directory
+cd /var/www/lupinus
+
 while :
   do
     echo "Waiting for upon docker."
