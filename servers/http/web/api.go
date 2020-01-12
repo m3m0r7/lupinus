@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"lupinus/client"
@@ -13,7 +14,10 @@ import (
 	"strings"
 )
 
-func Listen() {
+func Listen(ctx context.Context) {
+	childCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	listener, _ := net.Listen(
 		"tcp",
 		os.Getenv("CLIENT_API_SERVER"),
@@ -26,8 +30,10 @@ func Listen() {
 			continue
 		}
 
-		go func() {
+		go func(childCtx context.Context) {
+			_, cancel := context.WithCancel(childCtx)
 			defer connection.Close()
+			defer cancel()
 
 			fmt.Printf("Connected from: %v\n", connection.RemoteAddr())
 
@@ -184,6 +190,6 @@ func Listen() {
 				body
 
 			connection.Write([]byte(writeData))
-		}()
+		}(childCtx)
 	}
 }

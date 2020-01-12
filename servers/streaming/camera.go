@@ -2,6 +2,7 @@ package streaming
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -29,13 +30,17 @@ const (
 var UpdateTime = time.Now().Unix()
 var NextUpdateTime = time.Now().Unix()
 
-func ListenCameraStreaming() {
+func ListenCameraStreaming(ctx context.Context) {
+	childCtx, cancel := context.WithCancel(ctx)
 	mutex := sync.Mutex{}
 	clients := []websocket.WebSocketClient{}
 	clientChannel := make(chan websocket.WebSocketClient)
 	lostClientChannel := make(chan websocket.WebSocketClient)
+	defer cancel()
 
-	go func() {
+	go func(childCtx context.Context) {
+		childChildCtx, cancel := context.WithCancel(childCtx)
+		defer cancel()
 		listener, _ := net.Listen(
 			"tcp",
 			os.Getenv("CLIENT_SERVER"),
@@ -48,7 +53,10 @@ func ListenCameraStreaming() {
 				continue
 			}
 
-			go func() {
+			go func(childChildCtx context.Context) {
+				_, cancel := context.WithCancel(childCtx)
+				defer cancel()
+
 				// Handshake
 				wsClient, err := websocket.Upgrade(&connection)
 				if err != nil {
@@ -58,9 +66,9 @@ func ListenCameraStreaming() {
 					return
 				}
 				clientChannel <- *wsClient
-			}()
+			}(childChildCtx)
 		}
-	}()
+	}(childCtx)
 
 	// First contact, We send an image which fulfilled black.
 	buffer := bytes.NewBuffer([]byte{})
@@ -81,7 +89,9 @@ func ListenCameraStreaming() {
 		},
 	)
 
-	go func() {
+	go func(childCtx context.Context) {
+		_, cancel := context.WithCancel(childCtx)
+		defer cancel()
 		for {
 			select {
 			case client := <-clientChannel:
@@ -122,7 +132,7 @@ func ListenCameraStreaming() {
 				break
 			}
 		}
-	}()
+	}(childCtx)
 
 	for {
 		hostname := strings.Split(os.Getenv("CAMERA_SERVER"), ":")
@@ -192,9 +202,11 @@ func ListenCameraStreaming() {
 				}
 				illegalPacketCounter = maxIllegalPacketCounter
 
-				go func() {
+				go func(childCtx context.Context) {
+					_, cancel := context.WithCancel(childCtx)
 					mutex.Lock()
 					defer mutex.Unlock()
+					defer cancel()
 					// Broadcast to connected all clients.
 					websocket.Broadcast(
 						data,
@@ -202,7 +214,7 @@ func ListenCameraStreaming() {
 						clients,
 						lostClientChannel,
 					)
-				}()
+				}(childCtx)
 			}
 		}
 	}

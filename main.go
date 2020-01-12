@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/joho/godotenv"
 	"lupinus/servers/http/web"
@@ -14,12 +15,28 @@ func main() {
 		return
 	}
 
+	ctx := context.Background()
+	defer func(ctx context.Context) {
+		childCtx, cancel := context.WithCancel(ctx)
+		cancel()
+
+		err := recover()
+		if err != nil {
+			startup(childCtx)
+		}
+
+	}(ctx)
+
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
-	// Start listen servers
-	go streaming.ListenCameraStreaming()
-	go web.Listen()
+	startup(ctx)
 
 	wg.Wait()
+}
+
+func startup(ctx context.Context) {
+	// Start listen servers
+	go streaming.ListenCameraStreaming(ctx)
+	go web.Listen(ctx)
 }
