@@ -16,7 +16,13 @@ func Chunk(data []byte, size int) ([][]byte, int) {
 	// Read remaining data
 	remainBytes := len(data) - lastPos
 	if remainBytes > 0 {
-		chunks[loops] = data[lastPos:(lastPos + remainBytes)]
+		// Expand slices
+		newChunks := make([][]byte, loops + 1)
+		newChunks = append(
+			newChunks,
+			chunks...,
+		)
+		newChunks[loops] = data[lastPos:(lastPos + remainBytes)]
 	}
 	return chunks, loops
 }
