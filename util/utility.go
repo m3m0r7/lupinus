@@ -7,15 +7,16 @@ import (
 
 func Chunk(data []byte, size int) ([][]byte, int) {
 	loops := int(math.Floor(float64(len(data)) / float64(size)))
-	chunks := make([][]byte, loops + 1)
+	chunks := make([][]byte, loops)
 	for i := 0; i < loops; i++ {
 		chunks[i] = data[(size * i):(size * (i + 1))]
 	}
 
+	lastPos := loops * size
 	// Read remaining data
-	remainBytes := len(data) - (loops * size)
+	remainBytes := len(data) - lastPos
 	if remainBytes > 0 {
-		chunks[loops] = data[(loops * size):remainBytes]
+		chunks[loops] = data[lastPos:(lastPos + remainBytes)]
 	}
 	return chunks, loops
 }
