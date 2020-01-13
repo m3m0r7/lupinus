@@ -14,6 +14,7 @@ import (
 const (
 	chunkSize          = 8192
 	protectedImageSize = 1024 * 1000 * 10
+
 )
 
 func SubscribeImageStream(connection net.Conn) ([]byte, [][]byte, int, error) {
