@@ -28,7 +28,7 @@ func RequestSignin(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHe
 		// Not exists a session
 		return &http.HttpBody{
 				Payload: http.Payload{
-					"status": 500,
+					"status": 401,
 					"error":  "Unauthorized",
 				},
 			},
