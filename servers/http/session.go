@@ -16,6 +16,24 @@ type Session struct {
 	Data      map[string]interface{}
 }
 
+func DestroySession(clientMeta HttpClientMeta) {
+	cookie := FindCookie(
+		os.Getenv("SESSION_ID"),
+		clientMeta.Cookies,
+	)
+	if cookie == nil {
+		return
+	}
+
+	err := os.Remove(sessionDir + cookie.Value)
+	if err != nil {
+		fmt.Printf(
+			"Failed to destroy session: %v\n",
+			cookie,
+		)
+	}
+}
+
 func CreateSession() *Session {
 	// Create hash
 	hash := util.Generate(128)

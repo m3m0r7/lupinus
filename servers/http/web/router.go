@@ -17,6 +17,10 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 		"/api/v1/signin":
 		responseBody, responseHeader = controller.RequestSignin(clientMeta)
 		break
+
+	case "/api/v1/signout":
+		responseBody, responseHeader = controller.RequestSignout(clientMeta)
+		break
 	case "/api/v1/user":
 		responseBody, responseHeader = controller.RequestUser(clientMeta)
 		break
