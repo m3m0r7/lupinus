@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+
 	if err := godotenv.Load(); err != nil {
 		fmt.Printf("Failed to load an env file: %v\n", err)
 		return

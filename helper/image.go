@@ -2,6 +2,7 @@ package helper
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"lupinus/config"
 	"os"
@@ -9,12 +10,12 @@ import (
 	"time"
 )
 
-func CreateStaticImage(image []byte, filename string) {
+func CreateStaticImage(image []byte, filename string) (*string, error) {
 	path := config.GetRootDir() + "/storage/" + filename
 
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		fmt.Println(err)
-		return
+		return nil, errors.New("Make directories to failed.")
 	}
 	handle, _ := os.Create(path)
 
@@ -38,4 +39,6 @@ func CreateStaticImage(image []byte, filename string) {
 	metaHandle.Write(jsonData)
 
 	metaHandle.Close()
+
+	return &path, nil
 }

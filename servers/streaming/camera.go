@@ -192,7 +192,8 @@ func ListenCameraStreaming(ctx context.Context) {
 					NextUpdateTime = currentTime + UpdateStaticImageInterval
 
 					// create image
-					helper.CreateStaticImage(frameData, "record/image.jpg")
+					path, _ := helper.CreateStaticImage(frameData, "record/image.jpg")
+					_ = path
 				}
 
 				if err != nil {
