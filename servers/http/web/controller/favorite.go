@@ -1,21 +1,19 @@
 package controller
 
 import (
-	"github.com/nlopes/slack"
-	"lupinus/client"
-	"lupinus/config"
-	"lupinus/helper"
-	"lupinus/servers/http"
-	"lupinus/servers/http/web/behavior"
-	"lupinus/share"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-	"time"
+  "github.com/nlopes/slack"
+  "lupinus/client"
+  "lupinus/config"
+  "lupinus/helper"
+  "lupinus/servers/http"
+  "lupinus/servers/http/web/behavior"
+  "lupinus/share"
+  "os"
+  "path/filepath"
+  "strconv"
+  "strings"
+  "time"
 )
-
-var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
 
 func RequestFavorite(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	session := behavior.GetSignInInfo(clientMeta)
@@ -106,28 +104,31 @@ func requestFavoriteByPost(clientMeta http.HttpClientMeta) (*http.HttpBody, *htt
 
 				path := id + "/" + time.Now().Format("20060102") + "/" + strconv.Itoa(int(time.Now().Unix())) + ".jpg"
 
-				_, _, err := slackApi.PostMessage(
-					os.Getenv("SLACK_CHANNEL"),
-					slack.MsgOptionText("test", false),
-					slack.MsgOptionAttachments(
-						slack.Attachment{
-							Text: "Favorite now :heart:",
-						},
-					),
-				)
-
 				filePath, _ := helper.CreateStaticImage(
 					data,
 					path,
 				)
 
-				fileHandle, _ := os.Open(*filePath)
+				fileHandle, fileOpenErr := os.Open(*filePath)
 
-				_, err = slackApi.UploadFile(
+				if fileOpenErr != nil {
+				  return
+        }
+
+        var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
+
+        _, _, err := slackApi.PostMessage(
+         os.Getenv("SLACK_CHANNEL"),
+         slack.MsgOptionText("Favorite now :heart:", false),
+        )
+
+        _, err = slackApi.UploadFile(
 					slack.FileUploadParameters{
 						Reader:   fileHandle,
 						Filename: id,
-						Channels: []string{os.Getenv("SLACK_CHANNEL")},
+						Channels: []string{
+						  os.Getenv("SLACK_CHANNEL"),
+						},
 					},
 				)
 
