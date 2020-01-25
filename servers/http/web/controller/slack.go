@@ -247,7 +247,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 
 		updateErr := exec.Command(
-			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && php update_certificate.php",
+			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && /usr/bin/php update_certificate.php",
 		).Run()
 
 		if updateErr != nil {
