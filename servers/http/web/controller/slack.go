@@ -118,7 +118,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		_, _, err := slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
-				"OK! I will deploy *"+os.Getenv("APPLICATION_NAME")+"* new system! Please wait a few minutes...",
+				"OK! I will deploy *"+os.Getenv("APPLICATION_NAME")+"* new system! Please wait for a few minutes...",
 				false,
 			),
 		)
