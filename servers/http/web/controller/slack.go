@@ -111,17 +111,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			return &http.HttpBody{}, &http.HttpHeader{}
 		}
 
-		return &http.HttpBody{
-			AfterProcess: func(meta http.HttpClientMeta) {
-				// Restart
-				exec.Command(
-					"kill",
-					strconv.Itoa(
-						os.Getpid(),
-					),
-				).Run()
-			},
-		}, &http.HttpHeader{}
+		return &http.HttpBody{}, &http.HttpHeader{}
 	}
 
 
@@ -134,17 +124,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			),
 		)
 
-		return &http.HttpBody{
-			AfterProcess: func(meta http.HttpClientMeta) {
-				// Restart
-				exec.Command(
-					"kill",
-					strconv.Itoa(
-						os.Getpid(),
-					),
-				).Run()
-			},
-		}, &http.HttpHeader{}
+		return &http.HttpBody{}, &http.HttpHeader{}
 	}
 
 	return &http.HttpBody{}, &http.HttpHeader{}
