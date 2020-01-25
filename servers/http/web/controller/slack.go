@@ -221,10 +221,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 					"message": "OK",
 				},
 			}, &http.HttpHeader{
-			Status: 200,
-		}
+				Status: 200,
+			}
 	}
-
 
 	if strings.Contains(text, "cert") {
 		output, err := exec.Command(
@@ -236,9 +235,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			_, _, err = slackApi.PostMessage(
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
-					"Failed to run certbot :crying_cat_face: \n\n" +
-					"> [Reason] " + fmt.Sprintf("%v", err) + "\n" +
-					"> [Log] " + string(output),
+					"Failed to run certbot :crying_cat_face: \n\n"+
+						"> [Reason] "+fmt.Sprintf("%v", err)+"\n"+
+						"> [Log] "+string(output),
 					false,
 				),
 			)
@@ -247,11 +246,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 						"message": "OK",
 					},
 				}, &http.HttpHeader{
-				Status: 200,
-			}
+					Status: 200,
+				}
 		}
-
-
 
 		command := exec.Command(
 			"php",
@@ -267,9 +264,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			_, _, err = slackApi.PostMessage(
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
-					"Failed to update certificate file :crying_cat_face: \n\n" +
-						"> [Reason] " + fmt.Sprintf("%v", updateErr) + "\n" +
-					  "> [Log] " + string(output),
+					"Failed to update certificate file :crying_cat_face: \n\n"+
+						"> [Reason] "+fmt.Sprintf("%v", updateErr)+"\n"+
+						"> [Log] "+string(output),
 					false,
 				),
 			)
@@ -299,11 +296,11 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		_, _, err = slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
-				"*clear* - Clear bot caches from the app.\n" +
-					"*restart* - Restart the server.\n" +
-					"*deploy* - Deploy new system from GitHub repository.\n" +
-					"*cert* - Update certificate file for SSL.\n" +
-					"*stats* - Show the application stats.\n" +
+				"*clear* - Clear bot caches from the app.\n"+
+					"*restart* - Restart the server.\n"+
+					"*deploy* - Deploy new system from GitHub repository.\n"+
+					"*cert* - Update certificate file for SSL.\n"+
+					"*stats* - Show the application stats.\n"+
 					"*help* - Show this help.\n",
 				false,
 			),
@@ -313,8 +310,8 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 					"message": "OK",
 				},
 			}, &http.HttpHeader{
-			Status: 200,
-		}
+				Status: 200,
+			}
 	}
 
 	_, _, err = slackApi.PostMessage(

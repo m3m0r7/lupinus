@@ -44,6 +44,9 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 	case "/api/v1/slack":
 		responseBody, responseHeader = controller.RequestSlack(clientMeta)
 		break
+	case "/api/v1/download":
+		responseBody, responseHeader = controller.RequestDownload(clientMeta)
+		break
 	default:
 		responseBody, responseHeader = controller.RequestFallback(clientMeta)
 		break

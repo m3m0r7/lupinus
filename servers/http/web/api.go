@@ -199,10 +199,11 @@ func Listen(ctx context.Context) {
 				writeData += "Set-Cookie: " + cookie + "\n"
 			}
 
-			writeData += "\n" +
-				body
+			writeData += "\n" + body
 
-			connection.Write([]byte(writeData))
+			connection.Write(
+				[]byte(writeData),
+			)
 
 			// After process
 			if responseBody.AfterProcess != nil {
