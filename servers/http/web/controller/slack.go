@@ -216,7 +216,11 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			),
 		)
 
-		return &successReturn, &http.HttpHeader{
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"message": "OK",
+				},
+			}, &http.HttpHeader{
 			Status: 200,
 		}
 	}
