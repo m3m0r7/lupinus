@@ -250,10 +250,12 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		output, updateErr := exec.Command(
 			"sh",
 			"-c",
+				"\"" +
 				"cd " + os.Getenv("DEPLOY_DIRECTORY") + " && " +
 				"LILY_CERTIFICATE_BASED_DIRECTORY=" + os.Getenv("LILY_CERTIFICATE_BASED_DIRECTORY") + " " +
 				"LILY_NGINX_TARGET= " + os.Getenv("LILY_NGINX_TARGET") + " " +
-				"php update_certificate.php",
+				"php update_certificate.php" +
+				"\"",
 		).Output()
 
 		if updateErr != nil {
