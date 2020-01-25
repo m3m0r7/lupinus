@@ -224,7 +224,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 
 	if strings.Contains(text, "cert") {
 		output, err := exec.Command(
-			"certbot renew",
+			"/usr/bin/certbot renew",
 		).Output()
 
 		if err != nil {
