@@ -232,7 +232,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			_, _, err = slackApi.PostMessage(
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
-					"Failed to update certificate file :crying_cat_face: \n\n" +
+					"Failed to run certbot :crying_cat_face: \n\n" +
 					"> [Reason] " + fmt.Sprintf("%v", err) + "\n" +
 					"> [Log] " + string(output),
 					false,
@@ -247,17 +247,18 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			}
 		}
 
-		updateErr := exec.Command(
+		output, updateErr := exec.Command(
 			"php",
 			os.Getenv("DEPLOY_DIRECTORY") + "/update_certificate.php",
-		).Run()
+		).Output()
 
 		if updateErr != nil {
 			_, _, err = slackApi.PostMessage(
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
 					"Failed to update certificate file :crying_cat_face: \n\n" +
-						"> [Reason] " + fmt.Sprintf("%v", updateErr) + "\n",
+						"> [Reason] " + fmt.Sprintf("%v", updateErr) + "\n" +
+					  "> [Log] " + string(output),
 					false,
 				),
 			)
