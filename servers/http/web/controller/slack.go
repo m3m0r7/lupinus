@@ -222,6 +222,21 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 	}
 
+
+	if strings.Contains(text, "help") {
+		_, _, err = slackApi.PostMessage(
+			os.Getenv("SLACK_CHANNEL"),
+			slack.MsgOptionText(
+				"*clear* - Clear bot caches from the app.\n" +
+					"*restart* - Restart the server.\n" +
+					"*deploy* - Deploy new system from GitHub repository.\n" +
+					"*stats* - Show the application stats.\n" +
+					"*help* - Show this help.\n",
+				false,
+			),
+		)
+	}
+
 	return &http.HttpBody{
 			Payload: http.Payload{
 				"message": "OK",
