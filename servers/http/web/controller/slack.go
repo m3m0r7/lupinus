@@ -12,6 +12,9 @@ import (
 
 func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
 	successReturn := http.HttpBody{
+		Payload: http.Payload{
+			"message": "OK",
+		},
 		AfterProcess: func(meta http.HttpClientMeta) {
 			// Restart
 			exec.Command(
@@ -71,7 +74,13 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 
 	// check for the bot mention
 	if !strings.Contains(text, os.Getenv("SLACK_BOT_NAME")) {
-		return &http.HttpBody{}, &http.HttpHeader{}
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"message": "OK",
+				},
+			}, &http.HttpHeader{
+				Status: 200,
+			}
 	}
 
 	// the deploy command
@@ -85,9 +94,14 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		)
 
 		if err != nil {
-			return &http.HttpBody{}, &http.HttpHeader{
-				Status: 200,
-			}
+			return &http.HttpBody{
+
+					Payload: http.Payload{
+						"message": "OK",
+					},
+				}, &http.HttpHeader{
+					Status: 200,
+				}
 		}
 
 		deployErr := exec.Command(
@@ -108,9 +122,14 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 					false,
 				),
 			)
-			return &http.HttpBody{}, &http.HttpHeader{
-				Status: 200,
-			}
+			return &http.HttpBody{
+
+					Payload: http.Payload{
+						"message": "OK",
+					},
+				}, &http.HttpHeader{
+					Status: 200,
+				}
 		}
 
 		_, _, err = slackApi.PostMessage(
@@ -122,9 +141,14 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		)
 
 		if err != nil {
-			return &http.HttpBody{}, &http.HttpHeader{
-				Status: 200,
-			}
+			return &http.HttpBody{
+
+					Payload: http.Payload{
+						"message": "OK",
+					},
+				}, &http.HttpHeader{
+					Status: 200,
+				}
 		}
 
 		return &successReturn, &http.HttpHeader{
@@ -146,7 +170,11 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 	}
 
-	return &http.HttpBody{}, &http.HttpHeader{
-		Status: 200,
-	}
+	return &http.HttpBody{
+			Payload: http.Payload{
+				"message": "OK",
+			},
+		}, &http.HttpHeader{
+			Status: 200,
+		}
 }
