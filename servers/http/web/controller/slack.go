@@ -42,14 +42,20 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 	}
 
-	_, hasText := jsonData["text"]
-	_, hasChannel := jsonData["channel"]
+	if _, ok := jsonData["event"]; !ok {
+		return &http.HttpBody{}, &http.HttpHeader{}
+	}
+
+	event := jsonData["event"].(map[string]interface{})
+
+	_, hasText := event["text"]
+	_, hasChannel := event["channel"]
 
 	if !hasText || !hasChannel {
 		return &http.HttpBody{}, &http.HttpHeader{}
 	}
 
-	text := jsonData["text"].(string)
+	text := event["text"].(string)
 
 	// check for the bot mention
 	if !strings.Contains(text, os.Getenv("SLACK_BOT_NAME")) {
