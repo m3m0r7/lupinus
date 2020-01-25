@@ -41,6 +41,9 @@ func Connect(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader, 
 		break
 	case "/favicon.ico":
 		return nil, nil, nil
+	case "/api/v1/slack":
+		responseBody, responseHeader = controller.RequestSlack(clientMeta)
+		break
 	default:
 		responseBody, responseHeader = controller.RequestFallback(clientMeta)
 		break

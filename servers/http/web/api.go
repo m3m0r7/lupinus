@@ -190,6 +190,11 @@ func Listen(ctx context.Context) {
 				body
 
 			connection.Write([]byte(writeData))
+
+			// After process
+			if responseBody.AfterProcess != nil {
+				responseBody.AfterProcess(clientMeta)
+			}
 		}(childCtx)
 	}
 }

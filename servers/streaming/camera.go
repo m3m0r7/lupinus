@@ -1,23 +1,23 @@
 package streaming
 
 import (
-  "bytes"
-  "context"
-  "fmt"
-  "image"
-  "image/jpeg"
-  "lupinus/helper"
-  "lupinus/share"
-  "lupinus/subscriber"
-  "lupinus/util"
-  "lupinus/websocket"
-  "net"
-  "os"
-  "reflect"
-  "strconv"
-  "strings"
-  "sync"
-  "time"
+	"bytes"
+	"context"
+	"fmt"
+	"image"
+	"image/jpeg"
+	"lupinus/helper"
+	"lupinus/share"
+	"lupinus/subscriber"
+	"lupinus/util"
+	"lupinus/websocket"
+	"net"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
 
 const (
@@ -182,11 +182,11 @@ func ListenCameraStreaming(ctx context.Context) {
 
 				// proceed favorite procedures
 				go func(frameData []byte) {
-          share.ProceedProcedure(
-            "favorite",
-            frameData,
-          )
-        }(frameData)
+					share.ProceedProcedure(
+						"favorite",
+						frameData,
+					)
+				}(frameData)
 
 				currentTime := time.Now().Unix()
 				if NextUpdateTime < currentTime {

@@ -10,8 +10,8 @@ var mutex = sync.Mutex{}
 var procedures = map[string][]Procedure{}
 
 func AddProcedure(key string, procedure Procedure) {
-  mutex.Lock()
-  defer mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 	if _, ok := procedures[key]; !ok {
 		procedures[key] = []Procedure{}
 	}
@@ -19,8 +19,8 @@ func AddProcedure(key string, procedure Procedure) {
 }
 
 func ProceedProcedure(key string, data []byte) {
-  mutex.Lock()
-  defer mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 	if _, ok := procedures[key]; !ok {
 		return
 	}
