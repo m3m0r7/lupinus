@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"github.com/joho/godotenv"
-  "github.com/nlopes/slack"
+  "context"
+  "fmt"
+  "github.com/joho/godotenv"
   "lupinus/servers/http/web"
-	"lupinus/servers/streaming"
-  "os"
+  "lupinus/servers/streaming"
   "sync"
 )
 
@@ -18,12 +16,12 @@ func main() {
 		return
 	}
 
-	var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
-	_, _, err := slackApi.PostMessage(
-		os.Getenv("SLACK_CHANNEL"),
-		slack.MsgOptionText("Server started :heart_eyes: ", false),
-	)
-	_ = err
+	//var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
+	//_, _, err := slackApi.PostMessage(
+	//	os.Getenv("SLACK_CHANNEL"),
+	//	slack.MsgOptionText("Server started :heart_eyes: ", false),
+	//)
+	//_ = err
 
 	ctx := context.Background()
 	defer func(ctx context.Context) {

@@ -172,7 +172,6 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 
 		if err != nil {
 			return &http.HttpBody{
-
 					Payload: http.Payload{
 						"message": "OK",
 					},
@@ -223,6 +222,65 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 	}
 
 
+	if strings.Contains(text, "cert") {
+		output, err := exec.Command(
+			"certbot renew",
+		).Output()
+
+		if err != nil {
+			_, _, err = slackApi.PostMessage(
+				os.Getenv("SLACK_CHANNEL"),
+				slack.MsgOptionText(
+					"Failed to update certificate file :crying_cat_face: \n\n" +
+					"> [Reason] " + fmt.Sprintf("%v", err) + "\n" +
+					"> [Log] " + string(output),
+					false,
+				),
+			)
+			return &http.HttpBody{
+					Payload: http.Payload{
+						"message": "OK",
+					},
+				}, &http.HttpHeader{
+				Status: 200,
+			}
+		}
+
+		updateErr := exec.Command(
+			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && php update_certificate.php",
+		).Run()
+
+		if updateErr != nil {
+			_, _, err = slackApi.PostMessage(
+				os.Getenv("SLACK_CHANNEL"),
+				slack.MsgOptionText(
+					"Failed to update certificate file :crying_cat_face: \n\n" +
+						"> [Reason] " + fmt.Sprintf("%v", updateErr) + "\n",
+					false,
+				),
+			)
+			return &http.HttpBody{
+					Payload: http.Payload{
+						"message": "OK",
+					},
+				}, &http.HttpHeader{
+					Status: 200,
+				}
+		}
+
+		_, _, err = slackApi.PostMessage(
+			os.Getenv("SLACK_CHANNEL"),
+			slack.MsgOptionText(
+				"Certificate file was updated :key: I will restart the system.",
+				false,
+			),
+		)
+
+		return &successReturn, &http.HttpHeader{
+			Status: 200,
+		}
+	}
+
 	if strings.Contains(text, "help") {
 		_, _, err = slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
@@ -230,12 +288,28 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 				"*clear* - Clear bot caches from the app.\n" +
 					"*restart* - Restart the server.\n" +
 					"*deploy* - Deploy new system from GitHub repository.\n" +
+					"*cert* - Update certificate file for SSL.\n" +
 					"*stats* - Show the application stats.\n" +
 					"*help* - Show this help.\n",
 				false,
 			),
 		)
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"message": "OK",
+				},
+			}, &http.HttpHeader{
+			Status: 200,
+		}
 	}
+
+	_, _, err = slackApi.PostMessage(
+		os.Getenv("SLACK_CHANNEL"),
+		slack.MsgOptionText(
+			"Sorry, entered command is not available :scream_cat: if you want to know commands then mention me with `help`.",
+			false,
+		),
+	)
 
 	return &http.HttpBody{
 			Payload: http.Payload{
