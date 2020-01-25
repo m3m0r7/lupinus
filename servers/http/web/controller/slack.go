@@ -7,7 +7,6 @@ import (
 	"lupinus/servers/http"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 )
 
@@ -16,10 +15,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		AfterProcess: func(meta http.HttpClientMeta) {
 			// Restart
 			exec.Command(
-				"kill",
-				strconv.Itoa(
-					os.Getpid(),
-				),
+				"reboot",
 			).Run()
 		},
 	}
