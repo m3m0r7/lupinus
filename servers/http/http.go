@@ -26,8 +26,8 @@ type HttpClientMeta struct {
 }
 
 type HttpBody struct {
-	RawMode bool
-	Payload map[string]interface{}
+	RawMode      bool
+	Payload      map[string]interface{}
 	AfterProcess func(meta HttpClientMeta)
 }
 

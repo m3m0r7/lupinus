@@ -14,9 +14,16 @@ import (
 	"strings"
 )
 
+type afterProcessStruct struct {
+	body       http.HttpBody
+	clientMeta http.HttpClientMeta
+}
+
 func Listen(ctx context.Context) {
 	childCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
+	afterProcessChan := make(chan afterProcessStruct)
 
 	listener, _ := net.Listen(
 		"tcp",
@@ -24,6 +31,17 @@ func Listen(ctx context.Context) {
 	)
 	fmt.Printf("Start client API server %v\n", listener.Addr())
 	for {
+		select {
+		case afterProcess := <-afterProcessChan:
+			afterProcess.body.AfterProcess(
+				afterProcess.clientMeta,
+			)
+			break
+		default:
+			// No wait the channel action
+			break
+		}
+
 		connection, err := listener.Accept()
 		if err != nil {
 			fmt.Printf("Failed to listen. retry again.")
@@ -32,8 +50,10 @@ func Listen(ctx context.Context) {
 
 		go func(childCtx context.Context) {
 			_, cancel := context.WithCancel(childCtx)
-			defer connection.Close()
-			defer cancel()
+			defer func() {
+				connection.Close()
+				cancel()
+			}()
 
 			fmt.Printf("Connected from: %v\n", connection.RemoteAddr())
 
@@ -193,9 +213,10 @@ func Listen(ctx context.Context) {
 
 			// After process
 			if responseBody.AfterProcess != nil {
-				defer func(clientMeta http.HttpClientMeta, responseBody *http.HttpBody) {
-					responseBody.AfterProcess(clientMeta)
-				}(clientMeta, responseBody)
+				afterProcessChan <- afterProcessStruct{
+					body:       *responseBody,
+					clientMeta: clientMeta,
+				}
 			}
 		}(childCtx)
 	}

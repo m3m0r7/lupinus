@@ -7,10 +7,23 @@ import (
 	"lupinus/servers/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
 func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
+	successReturn := http.HttpBody{
+		AfterProcess: func(meta http.HttpClientMeta) {
+			// Restart
+			exec.Command(
+				"kill",
+				strconv.Itoa(
+					os.Getpid(),
+				),
+			).Run()
+		},
+	}
+
 	// has challenge token?
 	jsonData := map[string]interface{}{}
 	err := json.Unmarshal(clientMeta.Payload, &jsonData)
@@ -81,17 +94,17 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			"su",
 			os.Getenv("DEPLOY_USER"),
 			"-c",
-			"cd " + os.Getenv("DEPLOY_DIRECTORY") + " && git pull",
+			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && git pull",
 		).Run()
 
 		if deployErr != nil {
 			_, _, err = slackApi.PostMessage(
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
-						fmt.Sprintf(
-							"Deploy failed :crying_cat_face:\n\n> [Reason] %v",
-							deployErr,
-						),
+					fmt.Sprintf(
+						"Deploy failed :crying_cat_face:\n\n> [Reason] %v",
+						deployErr,
+					),
 					false,
 				),
 			)
@@ -110,15 +123,8 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			return &http.HttpBody{}, &http.HttpHeader{}
 		}
 
-		return &http.HttpBody{
-			AfterProcess: func(meta http.HttpClientMeta) {
-				exec.Command(
-					"reboot",
-				).Run()
-			},
-		}, &http.HttpHeader{}
+		return &successReturn, &http.HttpHeader{}
 	}
-
 
 	if strings.Contains(text, "restart") {
 		_, _, err = slackApi.PostMessage(
@@ -129,13 +135,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			),
 		)
 
-		return &http.HttpBody{
-			AfterProcess: func(meta http.HttpClientMeta) {
-				exec.Command(
-					"reboot",
-				).Run()
-			},
-		}, &http.HttpHeader{}
+		return &successReturn, &http.HttpHeader{}
 	}
 
 	return &http.HttpBody{}, &http.HttpHeader{}
