@@ -1,3 +1,4 @@
 .env
 users.json
 vendor
+server.log

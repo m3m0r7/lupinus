@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nlopes/slack"
+	"io/ioutil"
 	"lupinus/servers/http"
 	"os"
 	"os/exec"
@@ -11,6 +12,17 @@ import (
 )
 
 func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
+	filePath := os.Getenv("DEPLOY_DIRECTORY") + "/server.log"
+	handle, _ := os.OpenFile(
+		filePath,
+		os.O_RDWR|os.O_CREATE|os.O_APPEND,
+		0644,
+	)
+
+	defer handle.Close()
+
+	readReceivedEventIdAll, _ := ioutil.ReadFile(filePath)
+
 	successReturn := http.HttpBody{
 		Payload: http.Payload{
 			"message": "OK",
@@ -71,6 +83,24 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 	}
 
 	text := event["text"].(string)
+	eventId := event["client_msg_id"]
+
+	// Check already received event id.
+	if strings.Contains(string(readReceivedEventIdAll), eventId.(string)+"\n") {
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"message": "Already received.",
+				},
+			}, &http.HttpHeader{
+				Status: 200,
+			}
+	}
+
+	defer func() {
+		handle.Write(
+			[]byte(eventId.(string) + "\n"),
+		)
+	}()
 
 	// check for the bot mention
 	if !strings.Contains(text, os.Getenv("SLACK_BOT_NAME")) {
@@ -116,7 +146,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
 					fmt.Sprintf(
-						"Deploy failed :crying_cat_face: (ID: " + event["client_msg_id"].(string) + ") \n\n> [Reason] %v",
+						"Deploy failed :crying_cat_face: \n\n> [Reason] %v",
 						deployErr,
 					),
 					false,
@@ -135,7 +165,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		_, _, err = slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
-				"Deploy finished. I will restart the system (ID: " + event["client_msg_id"].(string) + ").",
+				"Deploy finished. I will restart the system.",
 				false,
 			),
 		)
@@ -160,7 +190,29 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		_, _, err = slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
-				"OK! I will restart the system (ID: " + event["client_msg_id"].(string) + ").",
+				"OK! I will restart the system.",
+				false,
+			),
+		)
+
+		return &successReturn, &http.HttpHeader{
+			Status: 200,
+		}
+	}
+
+	if strings.Contains(text, "clear") {
+		handle.Close()
+
+		// Remove server.log
+		err := os.Remove(filePath)
+		if err != nil {
+			// Nothing to do...
+		}
+
+		_, _, err = slackApi.PostMessage(
+			os.Getenv("SLACK_CHANNEL"),
+			slack.MsgOptionText(
+				"OK! I will clear caches.",
 				false,
 			),
 		)

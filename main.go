@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/nlopes/slack"
-	"lupinus/servers/http/web"
+  "github.com/nlopes/slack"
+  "lupinus/servers/http/web"
 	"lupinus/servers/streaming"
-	"os"
-	"sync"
+  "os"
+  "sync"
 )
 
 func main() {
