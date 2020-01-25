@@ -248,7 +248,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 
 		output, updateErr := exec.Command(
-			"cd",
+			"sh",
 			"-c",
 				"cd " + os.Getenv("DEPLOY_DIRECTORY") + " && " +
 				"LILY_CERTIFICATE_BASED_DIRECTORY=" + os.Getenv("LILY_CERTIFICATE_BASED_DIRECTORY") + " " +
