@@ -47,7 +47,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 							"body": jsonData["challenge"].(string),
 						},
 					},
-					&http.HttpHeader{}
+					&http.HttpHeader{
+						Status: 200,
+					}
 			}
 		}
 	}
@@ -83,7 +85,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		)
 
 		if err != nil {
-			return &http.HttpBody{}, &http.HttpHeader{}
+			return &http.HttpBody{}, &http.HttpHeader{
+				Status: 200,
+			}
 		}
 
 		deployErr := exec.Command(
@@ -104,7 +108,9 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 					false,
 				),
 			)
-			return &http.HttpBody{}, &http.HttpHeader{}
+			return &http.HttpBody{}, &http.HttpHeader{
+				Status: 200,
+			}
 		}
 
 		_, _, err = slackApi.PostMessage(
@@ -116,10 +122,14 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		)
 
 		if err != nil {
-			return &http.HttpBody{}, &http.HttpHeader{}
+			return &http.HttpBody{}, &http.HttpHeader{
+				Status: 200,
+			}
 		}
 
-		return &successReturn, &http.HttpHeader{}
+		return &successReturn, &http.HttpHeader{
+			Status: 200,
+		}
 	}
 
 	if strings.Contains(text, "restart") {
@@ -131,8 +141,12 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			),
 		)
 
-		return &successReturn, &http.HttpHeader{}
+		return &successReturn, &http.HttpHeader{
+			Status: 200,
+		}
 	}
 
-	return &http.HttpBody{}, &http.HttpHeader{}
+	return &http.HttpBody{}, &http.HttpHeader{
+		Status: 200,
+	}
 }
