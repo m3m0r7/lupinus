@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"io/ioutil"
+	"lupinus/client"
 	"lupinus/config"
 	"lupinus/servers/http"
 	"lupinus/servers/http/web/behavior"
@@ -12,6 +13,24 @@ import (
 )
 
 func RequestDownload(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHeader) {
+
+	session := behavior.GetSignInInfo(clientMeta)
+	authKeyHeader, err := client.FindHeaderByKey(clientMeta.Headers, "x-auth-key")
+	if err != nil ||
+		os.Getenv("AUTH_KEY") != (*authKeyHeader).Value ||
+		session == nil {
+		// Not exists a session
+		return &http.HttpBody{
+				Payload: http.Payload{
+					"status": 500,
+					"error":  "Unauthorized",
+				},
+			},
+			&http.HttpHeader{
+				Status: 401,
+			}
+	}
+
 	date := clientMeta.Path.Query().Get("date")
 	rootDirectoryName := date
 	findPath := date
@@ -23,7 +42,6 @@ func RequestDownload(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.Http
 	bytes := new(bytes.Buffer)
 	writer := zip.NewWriter(bytes)
 
-	session := behavior.GetSignInInfo(clientMeta)
 	files, _ := filepath.Glob(
 		config.GetRootDir() + "/storage/" + session.Data["id"].(string) + "/" + findPath + "/*.jpg",
 	)
