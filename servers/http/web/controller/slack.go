@@ -116,7 +116,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 				os.Getenv("SLACK_CHANNEL"),
 				slack.MsgOptionText(
 					fmt.Sprintf(
-						"Deploy failed :crying_cat_face:\n\n> [Reason] %v",
+						"Deploy failed :crying_cat_face: (ID: " + event["client_msg_id"].(string) + ") \n\n> [Reason] %v",
 						deployErr,
 					),
 					false,
@@ -135,7 +135,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		_, _, err = slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
-				"Deploy finished. I will restart the system.",
+				"Deploy finished. I will restart the system (ID: " + event["client_msg_id"].(string) + ").",
 				false,
 			),
 		)
@@ -160,7 +160,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		_, _, err = slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
-				"OK!. I will restart the system.",
+				"OK! I will restart the system (ID: " + event["client_msg_id"].(string) + ").",
 				false,
 			),
 		)
