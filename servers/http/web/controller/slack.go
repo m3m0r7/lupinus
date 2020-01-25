@@ -247,16 +247,17 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			}
 		}
 
-		output, updateErr := exec.Command(
-			"sh",
-			"-c",
-				fmt.Sprintf(
-					"cd %s && LILY_CERTIFICATE_BASED_DIRECTORY=%s LILY_NGINX_TARGET=%s php update_certificate.php",
-					os.Getenv("DEPLOY_DIRECTORY"),
-					os.Getenv("LILY_CERTIFICATE_BASED_DIRECTORY"),
-					os.Getenv("LILY_NGINX_TARGET"),
-				),
-		).Output()
+
+
+		command := exec.Command(
+			"php",
+			"update_certificate.php",
+		)
+
+		command.Dir = os.Getenv("DEPLOY_DIRECTORY")
+		command.Env = os.Environ()
+
+		output, updateErr := command.CombinedOutput()
 
 		if updateErr != nil {
 			_, _, err = slackApi.PostMessage(
