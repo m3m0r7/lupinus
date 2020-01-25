@@ -138,7 +138,7 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 			"su",
 			os.Getenv("DEPLOY_USER"),
 			"-c",
-			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && git pull",
+			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && git stash && git pull",
 		).Run()
 
 		if deployErr != nil {
