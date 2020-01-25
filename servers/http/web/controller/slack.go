@@ -224,7 +224,8 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 
 	if strings.Contains(text, "cert") {
 		output, err := exec.Command(
-			"/usr/bin/certbot renew",
+			"certbot",
+			"renew",
 		).Output()
 
 		if err != nil {
@@ -247,7 +248,8 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		}
 
 		updateErr := exec.Command(
-			"cd "+os.Getenv("DEPLOY_DIRECTORY")+" && /usr/bin/php update_certificate.php",
+			"php",
+			os.Getenv("DEPLOY_DIRECTORY") + "/update_certificate.php",
 		).Run()
 
 		if updateErr != nil {
