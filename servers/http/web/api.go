@@ -37,10 +37,9 @@ func Listen(ctx context.Context) {
 
 		go func(childCtx context.Context) {
 			var afterProcess *afterProcessStruct
-			_, cancel := context.WithCancel(childCtx)
+			//_, cancel := context.WithCancel(childCtx)
 			defer func() {
 				connection.Close()
-				cancel()
 
 				if afterProcess != nil {
 					afterProcess.body.AfterProcess(

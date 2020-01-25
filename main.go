@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
-	"lupinus/servers/http/web"
+  "github.com/nlopes/slack"
+  "lupinus/servers/http/web"
 	"lupinus/servers/streaming"
-	"sync"
+  "os"
+  "sync"
 )
 
 func main() {
@@ -16,7 +18,14 @@ func main() {
 		return
 	}
 
-	ctx := context.Background()
+  var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
+  _, _, err := slackApi.PostMessage(
+    os.Getenv("SLACK_CHANNEL"),
+    slack.MsgOptionText("Server started :heart_eyes: ", false),
+  )
+  _ = err
+
+  ctx := context.Background()
 	defer func(ctx context.Context) {
 		childCtx, cancel := context.WithCancel(ctx)
 		cancel()
