@@ -76,8 +76,8 @@ func ListenCameraStreaming(ctx context.Context) {
 		image.Rect(
 			0,
 			0,
-			640,
-			480,
+			920,
+			675,
 		),
 	)
 
