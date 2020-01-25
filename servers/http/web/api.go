@@ -193,7 +193,9 @@ func Listen(ctx context.Context) {
 
 			// After process
 			if responseBody.AfterProcess != nil {
-				responseBody.AfterProcess(clientMeta)
+				defer func(clientMeta http.HttpClientMeta, responseBody *http.HttpBody) {
+					responseBody.AfterProcess(clientMeta)
+				}(clientMeta, responseBody)
 			}
 		}(childCtx)
 	}
