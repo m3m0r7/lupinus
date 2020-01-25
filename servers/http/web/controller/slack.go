@@ -16,6 +16,8 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 	jsonData := map[string]interface{}{}
 	err := json.Unmarshal(clientMeta.Payload, &jsonData)
 
+	var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
+
 	if err != nil {
 		return &http.HttpBody{
 				Payload: http.Payload{
@@ -64,9 +66,6 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 
 	// the deploy command
 	if strings.Contains(text, "deploy") {
-
-		var slackApi = slack.New(os.Getenv("SLACK_TOKEN"))
-
 		_, _, err := slackApi.PostMessage(
 			os.Getenv("SLACK_CHANNEL"),
 			slack.MsgOptionText(
@@ -111,6 +110,29 @@ func RequestSlack(clientMeta http.HttpClientMeta) (*http.HttpBody, *http.HttpHea
 		if err != nil {
 			return &http.HttpBody{}, &http.HttpHeader{}
 		}
+
+		return &http.HttpBody{
+			AfterProcess: func(meta http.HttpClientMeta) {
+				// Restart
+				exec.Command(
+					"kill",
+					strconv.Itoa(
+						os.Getpid(),
+					),
+				).Run()
+			},
+		}, &http.HttpHeader{}
+	}
+
+
+	if strings.Contains(text, "restart") {
+		_, _, err = slackApi.PostMessage(
+			os.Getenv("SLACK_CHANNEL"),
+			slack.MsgOptionText(
+				"OK!. I will restart the system.",
+				false,
+			),
+		)
 
 		return &http.HttpBody{
 			AfterProcess: func(meta http.HttpClientMeta) {
